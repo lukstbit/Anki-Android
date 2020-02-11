@@ -43,6 +43,7 @@ import android.os.ParcelFileDescriptor;
 import android.provider.Settings;
 import com.google.android.material.snackbar.Snackbar;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.core.app.ActivityCompat;
@@ -85,6 +86,7 @@ import com.ichi2.anki.dialogs.DialogHandler;
 import com.ichi2.anki.dialogs.ExportDialog;
 import com.ichi2.anki.dialogs.ImportDialog;
 import com.ichi2.anki.dialogs.MediaCheckDialog;
+import com.ichi2.anki.dialogs.SimpleMessageDialog;
 import com.ichi2.anki.dialogs.SyncErrorDialog;
 import com.ichi2.anki.exception.ConfirmModSchemaException;
 import com.ichi2.anki.exception.DeckRenameException;
@@ -122,7 +124,8 @@ import timber.log.Timber;
 public class DeckPicker extends NavigationDrawerActivity implements
         StudyOptionsListener, SyncErrorDialog.SyncErrorDialogListener, ImportDialog.ImportDialogListener,
         MediaCheckDialog.MediaCheckDialogListener, ExportDialog.ExportDialogListener,
-        ActivityCompat.OnRequestPermissionsResultCallback, CustomStudyDialog.CustomStudyListener {
+        ActivityCompat.OnRequestPermissionsResultCallback, CustomStudyDialog.CustomStudyListener,
+        SimpleMessageDialog.SimpleMessageDialogListener {
 
 
     /**
@@ -362,11 +365,11 @@ public class DeckPicker extends NavigationDrawerActivity implements
     protected void onCreate(Bundle savedInstanceState) throws SQLException {
         Timber.d("onCreate()");
         SharedPreferences preferences = AnkiDroidApp.getSharedPrefs(getBaseContext());
-        // Open Collection on UI thread while splash screen is showing
-        boolean colOpen = firstCollectionOpen();
 
         // Then set theme and content view
         super.onCreate(savedInstanceState);
+        // Open Collection on UI thread while splash screen is showing
+        boolean colOpen = firstCollectionOpen();
         setContentView(R.layout.homescreen);
         View mainView = findViewById(android.R.id.content);
 
@@ -453,11 +456,17 @@ public class DeckPicker extends NavigationDrawerActivity implements
             // Show error dialog if collection could not be opened
             return CollectionHelper.getInstance().getColSafe(this) != null;
         } else {
-            // Request storage permission if we don't have it (e.g. on Android 6.0+)
-            ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                    REQUEST_STORAGE_PERMISSION);
+            // Show info dialog and then request storage permission if we don't have it (e.g. on Android 6.0+)
+            SimpleMessageDialog.newInstance(getString(R.string.permission_request_info), false)
+                    .show(getSupportFragmentManager(), "SHOW_PERMISSION_DIALOG");
             return false;
         }
+    }
+
+    @Override
+    public void dismissSimpleMessageDialog(boolean reload) {
+        ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    REQUEST_STORAGE_PERMISSION);
     }
 
     private void configureFloatingActionsMenu() {
