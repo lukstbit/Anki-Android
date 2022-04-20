@@ -39,8 +39,8 @@ import java.util.*
  * to add content to reviewer or note editor. Also view info and delete addons.
  */
 class AddonsBrowserAdapter(private var addonList: MutableList<AddonModel>) : RecyclerView.Adapter<AddonsBrowserAdapter.AddonsViewHolder>() {
-    private var preferences: SharedPreferences? = null
-    private var context: Context? = null
+    private lateinit var preferences: SharedPreferences
+    private lateinit var context: Context
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AddonsViewHolder {
         context = parent.context
         preferences = AnkiDroidApp.getSharedPrefs(context)
@@ -57,7 +57,7 @@ class AddonsBrowserAdapter(private var addonList: MutableList<AddonModel>) : Rec
 
         // enabled/disabled status as boolean value in SharedPreferences
         val jsAddonKey: String = addonModel.addonType
-        val enabledAddonSet = preferences!!.getStringSet(jsAddonKey, HashSet())
+        val enabledAddonSet = preferences.getStringSet(jsAddonKey, HashSet())
         for (s in enabledAddonSet!!) {
             if (s == addonModel.name) {
                 holder.addonActivate.isChecked = true
@@ -67,16 +67,16 @@ class AddonsBrowserAdapter(private var addonList: MutableList<AddonModel>) : Rec
         // toggle on/off addons
         holder.addonActivate.setOnClickListener {
             if (holder.addonActivate.isChecked) {
-                addonModel.updatePrefs(preferences!!, jsAddonKey, false)
-                UIUtils.showThemedToast(context, context!!.getString(R.string.addon_enabled, addonModel.addonTitle), true)
+                addonModel.updatePrefs(preferences, jsAddonKey, false)
+                UIUtils.showThemedToast(context, context.getString(R.string.addon_enabled, addonModel.addonTitle), true)
             } else {
-                addonModel.updatePrefs(preferences!!, jsAddonKey, true)
-                UIUtils.showThemedToast(context, context!!.getString(R.string.addon_disabled, addonModel.addonTitle), true)
+                addonModel.updatePrefs(preferences, jsAddonKey, true)
+                UIUtils.showThemedToast(context, context.getString(R.string.addon_disabled, addonModel.addonTitle), true)
             }
         }
 
         holder.detailsBtn.setOnClickListener {
-            val addonModelDialog = AddonDetailsDialog(context!!, addonModel)
+            val addonModelDialog = AddonDetailsDialog(context, addonModel)
             showDialogFragment(context as AnkiActivity?, addonModelDialog)
         }
 
@@ -84,7 +84,7 @@ class AddonsBrowserAdapter(private var addonList: MutableList<AddonModel>) : Rec
         holder.removeBtn.setOnClickListener {
             val dialog = ConfirmationDialog()
             val title: String = addonModel.addonTitle
-            val message = context!!.getString(R.string.confirm_remove_addon, addonModel.addonTitle)
+            val message = context.getString(R.string.confirm_remove_addon, addonModel.addonTitle)
             dialog.setArgs(title, message)
 
             val confirm = Runnable {
@@ -106,11 +106,11 @@ class AddonsBrowserAdapter(private var addonList: MutableList<AddonModel>) : Rec
         val deleted = BackupManager.removeDir(dir)
 
         if (!deleted) {
-            UIUtils.showThemedToast(context, context!!.getString(R.string.failed_to_remove_addon), false)
+            UIUtils.showThemedToast(context, context.getString(R.string.failed_to_remove_addon), false)
             return
         }
 
-        addonModel.updatePrefs(preferences!!, addonModel.addonType, true)
+        addonModel.updatePrefs(preferences, addonModel.addonType, true)
         addonList.remove(addonModel)
         notifyDataSetChanged()
         notifyItemRemoved(position)
