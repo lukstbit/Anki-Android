@@ -436,4 +436,13 @@
     <string name="malicious_archive_entry_outside">Malicious archive. Contains entry outside of the target dir: %s</string>
     <string name="malicious_archive_exceeds_limit">Malicious archive. Size exceeds %1$s or contains more than %2$d files</string>
     <string name="file_extract_exceeds_storage_space">File extract exceeds storage space</string>
+
+    <string name="npm_package_name">NPM Package Name</string>
+    <string name="addon_version">Version</string>
+    <string name="ankidroid_js_api_version">AnkiDroid JS API Version</string>
+    <string name="addon_type" comment="Addon type reviewer or note-editor">Type </string>
+    <string name="addon_author">Author</string>
+    <string name="addon_license">License</string>
+    <string name="addon_homepage">Homepage</string>
+    <string name="addon_details">Details</string>
 </resources>
