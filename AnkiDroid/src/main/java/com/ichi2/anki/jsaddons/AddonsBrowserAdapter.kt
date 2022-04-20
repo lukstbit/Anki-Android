@@ -58,11 +58,7 @@ class AddonsBrowserAdapter(private var addonList: MutableList<AddonModel>) : Rec
         // enabled/disabled status as boolean value in SharedPreferences
         val jsAddonKey: String = addonModel.addonType
         val enabledAddonSet = preferences.getStringSet(jsAddonKey, HashSet())
-        for (s in enabledAddonSet!!) {
-            if (s == addonModel.name) {
-                holder.addonActivate.isChecked = true
-            }
-        }
+        holder.addonActivate.isChecked = enabledAddonSet!!.contains(addonModel.name)
 
         // toggle on/off addons
         holder.addonActivate.setOnClickListener {
@@ -89,7 +85,7 @@ class AddonsBrowserAdapter(private var addonList: MutableList<AddonModel>) : Rec
 
             val confirm = Runnable {
                 Timber.i("AddonsAdapter:: Delete addon pressed at %s", position)
-                deleteAddonDir(addonModel, position)
+                deleteSelectedAddonPackageDir(addonModel)
             }
 
             dialog.setConfirm(confirm)
@@ -97,7 +93,12 @@ class AddonsBrowserAdapter(private var addonList: MutableList<AddonModel>) : Rec
         }
     }
 
-    private fun deleteAddonDir(addonModel: AddonModel, position: Int) {
+    /**
+     * Remove selected addon in list view from addons directory
+     *
+     * @param addonModel
+     */
+    private fun deleteSelectedAddonPackageDir(addonModel: AddonModel) {
         // remove the js addon folder
         val currentAnkiDroidDirectory = CollectionHelper.getCurrentAnkiDroidDirectory(context)
         val addonsHomeDir = File(currentAnkiDroidDirectory, "addons")
@@ -113,7 +114,6 @@ class AddonsBrowserAdapter(private var addonList: MutableList<AddonModel>) : Rec
         addonModel.updatePrefs(preferences, addonModel.addonType, true)
         addonList.remove(addonModel)
         notifyDataSetChanged()
-        notifyItemRemoved(position)
 
         (context as AnkiActivity).findViewById<LinearLayout>(R.id.no_addons_found_msg).visibleIf(addonList.size == 0)
     }
