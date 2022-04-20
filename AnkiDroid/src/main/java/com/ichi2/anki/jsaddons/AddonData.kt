@@ -130,7 +130,9 @@ fun getAddonModelFromJson(packageJsonPath: String): Pair<AddonModel?, List<Strin
         author = ImmutableMap<String, String>(addonData.author!!),
         license = addonData.license!!,
         homepage = addonData.homepage!!,
-        dist = ImmutableMap<String, String>(addonData.dist!!)
+        // package.json in tgz file does not contains dist but it is available when the file loaded from network
+        // the dist contains .tgz url which will be used to download the file
+        dist = ImmutableMap<String, String>(addonData.dist ?: emptyMap())
     )
 
     return Pair(addonModel, immutableList)
