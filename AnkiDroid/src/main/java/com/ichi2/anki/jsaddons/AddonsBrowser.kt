@@ -85,11 +85,7 @@ class AddonsBrowser : NavigationDrawerActivity(), SubtitleListener {
                 mAddonsList.add(addonModel)
             }
 
-            if (mAddonsList.size == 0) {
-                findViewById<LinearLayout>(R.id.no_addons_found_msg).visibility = View.VISIBLE
-            } else {
-                findViewById<LinearLayout>(R.id.no_addons_found_msg).visibility = View.GONE
-            }
+            findViewById<LinearLayout>(R.id.no_addons_found_msg).visibleIf(mAddonsList.size == 0)
 
             mAddonsListRecyclerView.adapter = AddonsBrowserAdapter(mAddonsList)
         } catch (e: IOException) {
@@ -106,4 +102,8 @@ class AddonsBrowser : NavigationDrawerActivity(), SubtitleListener {
 
     override val subtitleText: String
         get() = resources.getString(R.string.javascript_addons)
+}
+
+fun View.visibleIf(visible: Boolean) {
+    visibility = if (visible) View.VISIBLE else View.GONE
 }

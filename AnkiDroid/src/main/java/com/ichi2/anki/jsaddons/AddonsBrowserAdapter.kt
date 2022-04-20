@@ -115,9 +115,7 @@ class AddonsBrowserAdapter(private var addonList: MutableList<AddonModel>) : Rec
         notifyDataSetChanged()
         notifyItemRemoved(position)
 
-        if (addonList.size == 0) {
-            (context as AnkiActivity).findViewById<LinearLayout>(R.id.no_addons_found_msg).visibility = View.VISIBLE
-        }
+        (context as AnkiActivity).findViewById<LinearLayout>(R.id.no_addons_found_msg).visibleIf(addonList.size == 0)
     }
 
     override fun getItemCount(): Int {
