@@ -25,6 +25,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.ichi2.anki.CollectionHelper
 import com.ichi2.anki.NavigationDrawerActivity
 import com.ichi2.anki.R
+import com.ichi2.anki.UIUtils
 import com.ichi2.anki.widgets.DeckDropDownAdapter.SubtitleListener
 import timber.log.Timber
 import java.io.File
@@ -72,24 +73,29 @@ class AddonsBrowser : NavigationDrawerActivity(), SubtitleListener {
             addonsDir.mkdirs()
         }
 
+        var tempAddonName = ""
         mAddonsList = ArrayList()
         try {
             val files = addonsDir.listFiles()
             for (file in files!!) {
                 Timber.d("Addons: %s", file.name)
+                tempAddonName = file.name
                 // AnkiDroid/addons/some-addon/package/package.json
                 val addonPath = File(addonsDir, file.name)
                 val packageJsonPath = File(addonPath, "package/package.json").path
                 val result: Pair<AddonModel?, List<String>> = getAddonModelFromJson(packageJsonPath)
-                val addonModel = result.first!!
-                mAddonsList.add(addonModel)
+                val addonModel = result.first
+                if (addonModel != null) {
+                    mAddonsList.add(addonModel)
+                }
             }
 
             findViewById<LinearLayout>(R.id.no_addons_found_msg).visibleIf(mAddonsList.size == 0)
 
             mAddonsListRecyclerView.adapter = AddonsBrowserAdapter(mAddonsList)
         } catch (e: IOException) {
-            Timber.w(e.localizedMessage)
+            Timber.w(e)
+            UIUtils.showThemedToast(this, getString(R.string.not_valid_js_addon, tempAddonName), false)
         }
 
         hideProgressBar()
