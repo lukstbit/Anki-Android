@@ -18,7 +18,7 @@
 package com.ichi2.anki.jsaddons
 
 import android.content.Context
-import com.ichi2.anki.CollectionHelper
+import com.ichi2.anki.*
 import com.ichi2.annotations.NeedsTest
 import java.io.File
 
@@ -62,5 +62,15 @@ class AddonStorage(val context: Context) {
     fun getSelectedAddonPackageJson(addonName: String): File {
         val addonPath = getSelectedAddonDir(addonName)
         return File(addonPath, "package/package.json")
+    }
+
+    /**
+     * Remove selected addon in list view from addons directory
+     *
+     * @param addonName
+     */
+    fun deleteSelectedAddonPackageDir(addonName: String): Boolean {
+        val dir = getSelectedAddonDir(addonName)
+        return BackupManager.removeDir(dir)
     }
 }

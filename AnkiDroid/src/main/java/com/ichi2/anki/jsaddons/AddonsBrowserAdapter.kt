@@ -86,33 +86,25 @@ class AddonsBrowserAdapter(private var addonList: MutableList<AddonModel>) : Rec
 
             val confirm = Runnable {
                 Timber.i("AddonsAdapter:: Delete addon pressed at %s", position)
-                deleteSelectedAddonPackageDir(addonModel)
+
+                val deleteAddon = AddonStorage(context).deleteSelectedAddonPackageDir(addonModel.name)
+                if (!deleteAddon) {
+                    UIUtils.showThemedToast(context, context.getString(R.string.failed_to_remove_addon), false)
+                    return@Runnable
+                }
+
+                // update prefs for removed addon
+                addonModel.updatePrefs(preferences, addonModel.addonType, true)
+                addonList.remove(addonModel)
+                notifyDataSetChanged()
+
+                // show for getting addons no addons listed
+                (context as AnkiActivity).findViewById<LinearLayout>(R.id.no_addons_found_msg).visibleIf(addonList.size == 0)
             }
 
             dialog.setConfirm(confirm)
             showDialogFragment(context as AnkiActivity?, dialog)
         }
-    }
-
-    /**
-     * Remove selected addon in list view from addons directory
-     *
-     * @param addonModel
-     */
-    private fun deleteSelectedAddonPackageDir(addonModel: AddonModel) {
-        val dir = AddonStorage(context).getSelectedAddonDir(addonModel.name)
-        val deleted = BackupManager.removeDir(dir)
-
-        if (!deleted) {
-            UIUtils.showThemedToast(context, context.getString(R.string.failed_to_remove_addon), false)
-            return
-        }
-
-        addonModel.updatePrefs(preferences, addonModel.addonType, true)
-        addonList.remove(addonModel)
-        notifyDataSetChanged()
-
-        (context as AnkiActivity).findViewById<LinearLayout>(R.id.no_addons_found_msg).visibleIf(addonList.size == 0)
     }
 
     override fun getItemCount(): Int {
