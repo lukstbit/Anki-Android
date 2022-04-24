@@ -31,7 +31,6 @@ import com.ichi2.anki.*
 import com.ichi2.anki.AnkiActivity.showDialogFragment
 import com.ichi2.anki.dialogs.ConfirmationDialog
 import timber.log.Timber
-import java.io.File
 import java.util.*
 
 /**
@@ -58,7 +57,9 @@ class AddonsBrowserAdapter(private var addonList: MutableList<AddonModel>) : Rec
         // enabled/disabled status as boolean value in SharedPreferences
         val jsAddonKey: String = addonModel.addonType
         val enabledAddonSet = preferences.getStringSet(jsAddonKey, HashSet())
-        holder.addonActivate.isChecked = enabledAddonSet!!.contains(addonModel.name)
+        if (enabledAddonSet != null) {
+            holder.addonActivate.isChecked = enabledAddonSet.contains(addonModel.name)
+        }
 
         // toggle on/off addons
         holder.addonActivate.setOnClickListener {
@@ -99,11 +100,7 @@ class AddonsBrowserAdapter(private var addonList: MutableList<AddonModel>) : Rec
      * @param addonModel
      */
     private fun deleteSelectedAddonPackageDir(addonModel: AddonModel) {
-        // remove the js addon folder
-        val currentAnkiDroidDirectory = CollectionHelper.getCurrentAnkiDroidDirectory(context)
-        val addonsHomeDir = File(currentAnkiDroidDirectory, "addons")
-        val dir = File(addonsHomeDir, addonModel.name)
-
+        val dir = AddonStorage(context).getSelectedAddonDir(addonModel.name)
         val deleted = BackupManager.removeDir(dir)
 
         if (!deleted) {

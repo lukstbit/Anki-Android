@@ -22,13 +22,11 @@ import android.view.View
 import android.widget.LinearLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.ichi2.anki.CollectionHelper
 import com.ichi2.anki.NavigationDrawerActivity
 import com.ichi2.anki.R
 import com.ichi2.anki.UIUtils
 import com.ichi2.anki.widgets.DeckDropDownAdapter.SubtitleListener
 import timber.log.Timber
-import java.io.File
 import java.io.IOException
 
 /**
@@ -36,8 +34,8 @@ import java.io.IOException
  * When 'Addons' is clicked, it will open Addon Browser screen for listing all addons from directory.
  */
 class AddonsBrowser : NavigationDrawerActivity(), SubtitleListener {
-    private lateinit var mAddonsList: MutableList<AddonModel>
-    private lateinit var mAddonsListRecyclerView: RecyclerView
+    private lateinit var addonsList: MutableList<AddonModel>
+    private lateinit var addonsListRecyclerView: RecyclerView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         if (showedActivityFailedScreen(savedInstanceState)) {
@@ -55,44 +53,38 @@ class AddonsBrowser : NavigationDrawerActivity(), SubtitleListener {
         supportActionBar!!.title = getString(R.string.javascript_addons)
         showBackIcon()
 
-        mAddonsListRecyclerView = findViewById(R.id.addons)
-        mAddonsListRecyclerView.layoutManager = LinearLayoutManager(this)
+        addonsListRecyclerView = findViewById(R.id.addons)
+        addonsListRecyclerView.layoutManager = LinearLayoutManager(this)
 
-        listAddonsFromDir()
+        listAddonsFromCurrentProfile()
     }
 
     /**
      * List addons from directory, for valid package.json the addons will be added to view
      */
-    private fun listAddonsFromDir() {
+    private fun listAddonsFromCurrentProfile() {
         Timber.d("List addon from directory.")
         // AnkiDroid/addons/
-        val currentAnkiDroidDirectory = CollectionHelper.getCurrentAnkiDroidDirectory(this)
-        val addonsDir = File(currentAnkiDroidDirectory, "addons")
-        if (!addonsDir.exists()) {
-            addonsDir.mkdirs()
-        }
-
+        val addonsDir = AddonStorage(this).getCurrentProfileAddonDir()
         var tempAddonName = ""
-        mAddonsList = ArrayList()
+        addonsList = ArrayList()
         try {
             val files = addonsDir.listFiles()
             for (file in files!!) {
                 Timber.d("Addons: %s", file.name)
                 tempAddonName = file.name
                 // AnkiDroid/addons/some-addon/package/package.json
-                val addonPath = File(addonsDir, file.name)
-                val packageJsonPath = File(addonPath, "package/package.json").path
+                val packageJsonPath = AddonStorage(this).getSelectedAddonPackageJson(file.name).path
                 val result: Pair<AddonModel?, List<String>> = getAddonModelFromJson(packageJsonPath)
                 val addonModel = result.first
                 if (addonModel != null) {
-                    mAddonsList.add(addonModel)
+                    addonsList.add(addonModel)
                 }
             }
 
-            findViewById<LinearLayout>(R.id.no_addons_found_msg).visibleIf(mAddonsList.size == 0)
+            findViewById<LinearLayout>(R.id.no_addons_found_msg).visibleIf(addonsList.size == 0)
 
-            mAddonsListRecyclerView.adapter = AddonsBrowserAdapter(mAddonsList)
+            addonsListRecyclerView.adapter = AddonsBrowserAdapter(addonsList)
         } catch (e: IOException) {
             Timber.w(e)
             UIUtils.showThemedToast(this, getString(R.string.not_valid_js_addon, tempAddonName), false)
@@ -103,7 +95,7 @@ class AddonsBrowser : NavigationDrawerActivity(), SubtitleListener {
 
     override fun onResume() {
         super.onResume()
-        listAddonsFromDir()
+        listAddonsFromCurrentProfile()
     }
 
     override val subtitleText: String
