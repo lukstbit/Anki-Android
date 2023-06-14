@@ -1,0 +1,153 @@
+[versions]
+# ===== Standard dependencies versions =====
+kotlin = "1.8.21"
+lint = "30.4.2" # 31.0.1 stopped running lint checks in CI
+acra = "5.9.7"
+coroutines = "1.6.4"
+ankidroidBackend = "0.1.21-anki2.1.61"
+jetbrainsAnnotations = "24.0.1"
+autoService = "1.0.1"
+apacheCommonsExec = "1.3"
+apacheCommonsCompress = "1.12"
+apacheCommonsCollections4 = "4.4"
+jackson = "2.15.0"
+imageCropper = "4.5.0"
+nanohttpd = "2.3.1"
+protobufKotlin = "3.23.0"
+leakcanary = "2.10"
+materialdialogs = "3.3.0"
+diffMatchPatch = "1.2"
+commonsIo = "2.11.0"
+googleAnalyticsJava7 = "2.0.13"
+okhttp = "4.11.0"
+slf4jTimber = "3.1"
+timber = "5.0.1"
+jsoup = "1.16.1"
+javaSemver = "0.9.0"
+drawer = "1.0.3"
+materialTapTargetPrompt = "3.3.2"
+colorpicker = "1.2.0"
+searchPreference = "v2.3.0"
+appIntro = "6.2.0"
+# ===== Android versions =====
+androidDesugarJdkLibs = "2.0.3"
+androidxFragments = "1.5.7"
+androidxAnnotation = "1.6.0"
+androidxActivity = "1.7.1"
+androidxAppCompat = "1.7.0-alpha02"
+androidxBrowser = "1.5.0"
+androidxCoreKtx = "1.10.1"
+androidxPreferenceKtx = "1.2.0"
+androidxExifInterface = "1.3.6"
+androidxRecyclerView = "1.3.0"
+androidxSqliteFramework = "2.3.1"
+androidxSwipeRefreshLayout = "1.1.0"
+androidxViewPager2 = "1.0.0"
+androidxContrainstLayout = "2.1.4"
+androidxWebkit = "1.6.1"
+material2 = "1.7.0"
+# ===== Test dependencies versions =====
+hamcrest = "2.2"
+junit = "5.9.3"
+androidxEspresso = "3.5.1"
+androidxTest = "1.5.0"
+androidxTestExt = "1.1.5"
+robolectric = "4.10.2"
+mockk = "1.13.5"
+timberJunitRule = "1.0.1"
+mockito = "5.2.0"
+mokitoKotlin = "4.1.0"
+# ===== Plugins versions =====
+androidPlugin = "7.4.2"
+ktlintPlugin = "11.3.2"
+amazonStorePublisherPlugin = "0.1.0"
+tripletPlayPlugin = "3.8.3"
+
+[libraries]
+# ===== Standard dependencies =====
+android-tools-desugarJdkLibs = { group = "com.android.tools", name = "desugar_jdk_libs", version.ref = "androidDesugarJdkLibs" }
+jetbrains-annotations = { group = "org.jetbrains", name = "annotations", version.ref = "jetbrainsAnnotations" }
+autoService-annotations = { group = "com.google.auto.service", name = "auto-service-annotations", version.ref = "autoService" }
+autoService-autoService = { group = "com.google.auto.service", name = "auto-service", version.ref = "autoService" }
+ankiAndroid-backend = { group = "io.github.david-allison-1", name = "anki-android-backend", version.ref = "ankidroidBackend" }
+ankiAndroid-backendTesting = { group = "io.github.david-allison-1", name = "anki-android-backend-testing", version.ref = "ankidroidBackend" }
+kotlin-stdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlin" }
+kotlin-reflect = { group = "org.jetbrains.kotlin", name = "kotlin-reflect", version.ref = "kotlin" }
+kotlin-test = { group = "org.jetbrains.kotlin", name = "kotlin-test", version.ref = "kotlin" }
+kotlin-testJunit = { group = "org.jetbrains.kotlin", name = "kotlin-test-junit", version.ref = "kotlin" }
+kotlin-testJunit5 = { group = "org.jetbrains.kotlin", name = "kotlin-test-junit5", version.ref = "kotlin" }
+lint-lint = { group = "com.android.tools.lint", name = "lint", version.ref = "lint" }
+lint-api = { group = "com.android.tools.lint", name = "lint-api", version.ref = "lint" }
+lint-tests = { group = "com.android.tools.lint", name = "lint-tests", version.ref = "lint" }
+acra-http = { group = "ch.acra", name = "acra-http", version.ref = "acra" }
+acra-dialog = { group = "ch.acra", name = "acra-dialog", version.ref = "acra" }
+acra-toast = { group = "ch.acra", name = "acra-toast", version.ref = "acra" }
+acra-limiter = { group = "ch.acra", name = "acra-limiter", version.ref = "acra" }
+kotlinx-coroutinesTest = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutines" }
+apache-commons-exec = { group = "org.apache.commons", name = "commons-exec", version.ref = "apacheCommonsExec" }
+apache-commons-compress = { group = "org.apache.commons", name = "commons-compress", version.ref = "apacheCommonsCompress" }
+apache-commons-collections4 = { group = "org.apache.commons", name = "commons-collections4", version.ref = "apacheCommonsCollections4" }
+jackson-databind = { group = "com.fasterxml.jackson.core", name = "jackson-databind", version.ref = "jackson" }
+imageCropper = { group = "com.vanniktech", name = "android-image-cropper", version.ref = "imageCropper" }
+nanohttpd = { group = "org.nanohttpd", name = "nanohttpd", version.ref = "nanohttpd" }
+protobuf-kotlin = { group = "com.google.protobuf", name = "protobuf-kotlin", version.ref = "protobufKotlin" }
+materialdialogs-core = { group = "com.afollestad.material-dialogs", name = "core", version.ref = "materialdialogs" }
+materialdialogs-input = { group = "com.afollestad.material-dialogs", name = "input", version.ref = "materialdialogs" }
+diffMatchPatch = { group = "org.bitbucket.cowwoc", name = "diff-match-patch", version.ref = "diffMatchPatch" }
+commonsIo = { group = "commons-io", name = "commons-io", version.ref = "commonsIo" }
+googleAnalyticsJava7 = { group = "net.mikehardy", name = "google-analytics-java7", version.ref = "googleAnalyticsJava7" }
+okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
+slf4jTimber = { group = "com.arcao", name = "slf4j-timber", version.ref = "slf4jTimber" }
+timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "timber" }
+jsoup = { group = "org.jsoup", name = "jsoup", version.ref = "jsoup" }
+javaSemver = { group = "com.github.zafarkhaja", name = "java-semver", version.ref = "javaSemver" }
+drawer = { group = "com.drakeet.drawer", name = "drawer", version.ref = "drawer" }
+materialTapTargetPrompt = { group = "uk.co.samuelwall", name = "material-tap-target-prompt", version.ref = "materialTapTargetPrompt" }
+colorpicker = { group = "com.github.mrudultora", name = "Colorpicker", version.ref = "colorpicker" }
+searchpreference = { group = "com.github.ByteHamster", name = "SearchPreference", version.ref = "searchPreference" }
+appIntro = { group = "com.github.AppIntro", name = "AppIntro", version.ref = "appIntro" }
+leakcanary = { group = "com.squareup.leakcanary", name = "leakcanary-android", version.ref = "leakcanary" }
+# ===== Android dependencies =====
+androidx-fragments-ktx = { group = "androidx.fragment", name = "fragment-ktx", version.ref = "androidxFragments" }
+androidx-fragments-testing = { group = "androidx.fragment", name = "fragment-testing", version.ref = "androidxFragments" }
+androidx-annotation = { group = "androidx.annotation", name = "annotation", version.ref = "androidxAnnotation" }
+androidx-activityKtx = { group = "androidx.activity", name = "activity-ktx", version.ref = "androidxActivity" }
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "androidxAppCompat" }
+androidx-browser = { group = "androidx.browser", name = "browser", version.ref = "androidxBrowser" }
+androidx-coreKtx = { group = "androidx.core", name = "core-ktx", version.ref = "androidxCoreKtx" }
+androidx-exifInterface = { group = "androidx.exifinterface", name = "exifinterface", version.ref = "androidxExifInterface" }
+androidx-preferenceKtx = { group = "androidx.preference", name = "preference-ktx", version.ref = "androidxPreferenceKtx" }
+androidx-recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "androidxRecyclerView" }
+androidx-sqliteFramework = { group = "androidx.sqlite", name = "sqlite-framework", version.ref = "androidxSqliteFramework" }
+androidx-swiperefreshlayout = { group = "androidx.swiperefreshlayout", name = "swiperefreshlayout", version.ref = "androidxSwipeRefreshLayout" }
+androidx-viewpager2 = { group = "androidx.viewpager2", name = "viewpager2", version.ref = "androidxViewPager2" }
+androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "androidxContrainstLayout" }
+androidx-webkit = { group = "androidx.webkit", name = "webkit", version.ref = "androidxWebkit" }
+material2 = { group = "com.google.android.material", name = "material", version.ref = "material2" }
+
+# ===== Test dependencies =====
+hamcrest-hamcrest = { group = "org.hamcrest", name = "hamcrest", version.ref = "hamcrest" }
+hamcrest-library = { group = "org.hamcrest", name = "hamcrest-library", version.ref = "hamcrest" }
+junit-jupiter = { group = "org.junit.jupiter", name = "junit-jupiter", version.ref = "junit" }
+junit-jupiterParams = { group = "org.junit.jupiter", name = "junit-jupiter-params", version.ref = "junit" }
+junit-vintageEngine = { group = "org.junit.vintage", name = "junit-vintage-engine", version.ref = "junit" }
+androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "androidxEspresso" }
+androidx-espresso-contrib = { group = "androidx.test.espresso", name = "espresso-contrib", version.ref = "androidxEspresso" }
+robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }
+androidx-test-core = { group = "androidx.test", name = "core", version.ref = "androidxTest" }
+androidx-test-rules = { group = "androidx.test", name = "rules", version.ref = "androidxTest" }
+androidx-test-ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "androidxTestExt" }
+mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
+timberJunitRule = { group = "net.lachlanmckee", name = "timber-junit-rule", version.ref = "timberJunitRule" }
+mockito-inline = { group = "org.mockito", name = "mockito-inline", version.ref = "mockito" }
+mockito-kotlin = { group = "org.mockito.kotlin", name = "mockito-kotlin", version.ref = "mokitoKotlin" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "androidPlugin" }
+android-library = { id = "com.android.library", version.ref = "androidPlugin" }
+amazonStorePublisher = { id = "app.brant.amazonappstorepublisher", version.ref = "amazonStorePublisherPlugin" }
+tripletPlay = { id = "com.github.triplet.play", version.ref = "tripletPlayPlugin" }
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin" }
+ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlintPlugin" }
