@@ -1,3 +1,20 @@
+pluginManagement {
+    repositories {
+        google()
+        gradlePluginPortal()
+        mavenCentral()
+    }
+}
+// TODO centralize dependencies repositories with this block, currently it clashes
+//  with robolectricDownloader.gradle which manually adds a local maven repository
+//dependencyResolutionManagement {
+//    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+//    repositories {
+//        google()
+//        mavenCentral()
+//    }
+//}
+
 include ':lint-rules'
 include ':api'
 include ':AnkiDroid'
