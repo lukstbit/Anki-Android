@@ -1,14 +1,11 @@
 plugins {
- // Gradle plugin portal
- id 'com.github.triplet.play' version '3.8.3'
+    id 'idea'
+    id 'com.github.triplet.play' version '3.8.3'
+    id 'app.brant.amazonappstorepublisher' version '0.1.0'
+    id 'com.android.application'
+    id 'kotlin-android'
+    id 'kotlin-parcelize'
 }
-
-apply plugin: 'com.android.application'
-apply plugin: 'app.brant.amazonappstorepublisher'
-apply plugin: 'idea'
-apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-parcelize'
-
 
 repositories {
     google()
