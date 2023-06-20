@@ -19,14 +19,14 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
 }
 
 dependencies {
-    compileOnly "com.android.tools.lint:lint-api:$lint_version"
-    compileOnly "com.android.tools.lint:lint:$lint_version"
+    compileOnly libs.lint.api
+    compileOnly libs.lint.lint
 
-    testImplementation "org.hamcrest:hamcrest:$hamcrest_version"
-    testImplementation "org.hamcrest:hamcrest-library:$hamcrest_version"
-    testImplementation "org.junit.jupiter:junit-jupiter:$junit_version"
-    testImplementation "org.junit.vintage:junit-vintage-engine:$junit_version"
-    testImplementation "com.android.tools.lint:lint:$lint_version"
-    testImplementation "com.android.tools.lint:lint-api:$lint_version"
-    testImplementation "com.android.tools.lint:lint-tests:$lint_version"
+    testImplementation libs.hamcrest.hamcrest
+    testImplementation libs.hamcrest.library
+    testImplementation libs.junit.jupiter
+    testImplementation libs.junit.vintageEngine
+    testImplementation libs.lint.lint
+    testImplementation libs.lint.api
+    testImplementation libs.lint.tests
 }
