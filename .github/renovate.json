@@ -1,0 +1,17 @@
+{
+  "labels": [
+    "dependencies"
+  ],
+  "autoApprove": false,
+  "automerge": false,
+  "baseBranches": [
+    "dependency-updates"
+  ],
+  "branchNameStrict": true,
+  "extends": [
+    "config:base",
+    ":dependencyDashboard",
+    "schedule:daily",
+    "group:all"
+  ]
+}
