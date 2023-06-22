@@ -2,6 +2,7 @@
   "labels": [
     "dependencies"
   ],
+  "platform": "github",
   "autoApprove": false,
   "automerge": false,
   "baseBranches": [
