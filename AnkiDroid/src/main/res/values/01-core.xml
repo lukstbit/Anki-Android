@@ -27,7 +27,7 @@
     <string name="help">Help</string>
     <string name="drawing">Drawing</string>
     <string name="send_feedback">Send feedback</string>
-
+    <string name="not_to_used">Not really to be used</string>
     <string name="studyoptions_due_today">Due today:</string>
     <string name="studyoptions_new_total">Total new cards:</string>
     <string name="studyoptions_total_cards">Total cards:</string>
