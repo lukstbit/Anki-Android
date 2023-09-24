@@ -19,15 +19,12 @@ package com.ichi2.libanki
 
 import androidx.annotation.VisibleForTesting
 import com.ichi2.libanki.exception.WrongId
-import com.ichi2.utils.KotlinCleanup
-import com.ichi2.utils.emptyStringArray
 import net.ankiweb.rsdroid.RustCleanup
 import org.json.JSONObject
 import timber.log.Timber
 import java.util.*
 import java.util.regex.Pattern
 
-@KotlinCleanup("lots to do")
 class Note : Cloneable {
     val col: Collection
 
@@ -308,7 +305,6 @@ class Note : Cloneable {
          * @param fieldValues Iterable of field values that may contain existing cloze deletions
          * @return the next index that a cloze should be inserted at
          */
-        @KotlinCleanup("general regex fixes for '.group' being nullable")
         fun getNextClozeIndex(fieldValues: Iterable<String>): Int {
             var highestClozeId = 0
             // Begin looping through the fields
@@ -316,8 +312,8 @@ class Note : Cloneable {
                 // Begin searching in the current field for cloze references
                 val matcher = mClozeRegexPattern.matcher(fieldLiteral)
                 while (matcher.find()) {
-                    val detectedClozeId = matcher.group(1)!!.toInt()
-                    if (detectedClozeId > highestClozeId) {
+                    val detectedClozeId = matcher.group(1)?.toInt() ?: -1
+                    if (detectedClozeId != -1 && detectedClozeId > highestClozeId) {
                         highestClozeId = detectedClozeId
                     }
                 }
