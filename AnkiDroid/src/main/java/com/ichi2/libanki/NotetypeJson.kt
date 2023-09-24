@@ -17,6 +17,7 @@
 package com.ichi2.libanki
 
 import androidx.annotation.CheckResult
+import com.ichi2.libanki.utils.deepClonedInto
 import com.ichi2.utils.*
 import org.json.JSONArray
 import org.json.JSONObject

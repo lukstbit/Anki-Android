@@ -16,6 +16,8 @@
 
 package com.ichi2.libanki.utils
 
+import androidx.annotation.VisibleForTesting
+import com.ichi2.utils.deepClone
 import org.json.JSONArray
 import org.json.JSONObject
 import java.util.*
@@ -141,4 +143,25 @@ fun JSONArray.jsonObjectIterator(): Iterator<JSONObject> {
             return `object`
         }
     }
+}
+
+/** deep clone this into clone.
+ *
+ * Given a subtype [T] of JSONObject, and a JSONObject [clone], we could do
+ * ```
+ * T t = new T();
+ * clone.deepClonedInto(t);
+ * ```
+ * in order to obtain a deep clone of [clone] of type [T].  */
+@VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
+fun <T : JSONObject> JSONObject.deepClonedInto(clone: T): T {
+    for (key in this.keys()) {
+        val value = when (get(key)) {
+            is JSONObject -> getJSONObject(key).deepClone()
+            is JSONArray -> getJSONArray(key).deepClone()
+            else -> get(key)
+        }
+        clone.put(key, value)
+    }
+    return clone
 }
