@@ -55,10 +55,10 @@ import com.ichi2.libanki.*
 import com.ichi2.libanki.Collection
 import com.ichi2.libanki.Notetypes.Companion.NOT_FOUND_NOTE_TYPE
 import com.ichi2.libanki.exception.ConfirmModSchemaException
+import com.ichi2.libanki.utils.jsonObjectIterable
 import com.ichi2.ui.FixedEditText
 import com.ichi2.ui.FixedTextView
 import com.ichi2.utils.KotlinCleanup
-import com.ichi2.utils.jsonObjectIterable
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject

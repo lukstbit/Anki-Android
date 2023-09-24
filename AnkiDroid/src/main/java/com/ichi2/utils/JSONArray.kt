@@ -41,6 +41,7 @@
  */
 package com.ichi2.utils
 
+import com.ichi2.libanki.utils.jsonObjectIterable
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -56,26 +57,6 @@ fun JSONArray.deepClone(): JSONArray {
         )
     }
     return clone
-}
-
-fun JSONArray.jsonObjectIterable(): Iterable<JSONObject> {
-    return Iterable { jsonObjectIterator() }
-}
-
-@KotlinCleanup("see if jsonObject/string/longIterator() methods can be combined into one")
-fun JSONArray.jsonObjectIterator(): Iterator<JSONObject> {
-    return object : Iterator<JSONObject> {
-        private var mIndex = 0
-        override fun hasNext(): Boolean {
-            return mIndex < length()
-        }
-
-        override fun next(): JSONObject {
-            val `object` = getJSONObject(mIndex)
-            mIndex++
-            return `object`
-        }
-    }
 }
 
 fun JSONArray.stringIterable(): Iterable<String> {

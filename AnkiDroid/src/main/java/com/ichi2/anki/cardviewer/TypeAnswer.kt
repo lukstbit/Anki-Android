@@ -24,7 +24,7 @@ import com.ichi2.anki.R
 import com.ichi2.anki.servicelayer.LanguageHint
 import com.ichi2.anki.servicelayer.LanguageHintService
 import com.ichi2.libanki.Card
-import com.ichi2.utils.jsonObjectIterable
+import com.ichi2.libanki.utils.jsonObjectIterable
 import org.intellij.lang.annotations.Language
 import org.json.JSONArray
 import timber.log.Timber

@@ -16,7 +16,6 @@
 
 package com.ichi2.libanki.utils
 
-import com.ichi2.utils.jsonObjectIterable
 import org.json.JSONArray
 import org.json.JSONObject
 import java.util.*
@@ -123,4 +122,23 @@ fun JSONArray.insert(idx: Int, jsonObject: JSONObject) {
     }
 
     this.put(idx, jsonObject)
+}
+
+fun JSONArray.jsonObjectIterable(): Iterable<JSONObject> {
+    return Iterable { jsonObjectIterator() }
+}
+
+fun JSONArray.jsonObjectIterator(): Iterator<JSONObject> {
+    return object : Iterator<JSONObject> {
+        private var mIndex = 0
+        override fun hasNext(): Boolean {
+            return mIndex < length()
+        }
+
+        override fun next(): JSONObject {
+            val `object` = getJSONObject(mIndex)
+            mIndex++
+            return `object`
+        }
+    }
 }
