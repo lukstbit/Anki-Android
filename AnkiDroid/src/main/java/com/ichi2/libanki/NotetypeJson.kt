@@ -31,8 +31,7 @@ import java.util.HashSet
  * `Models.save(this, true)` should be called. However, you should do the change in batch and change only when all are d
  * one, because recomputing the list of card is an expensive operation.
  */
-@KotlinCleanup("fix kotlin docs")
-@KotlinCleanup("IDE Lint")
+// TODO fix kotlin docs
 class NotetypeJson : JSONObject {
     /**
      * Creates a new empty model object
@@ -43,8 +42,6 @@ class NotetypeJson : JSONObject {
      * Creates a copy from [JSONObject] and use it as a string
      *
      * This function will perform deepCopy on the passed object
-     *
-     * @see NotetypeJson.from
      */
     constructor(json: JSONObject) : super() {
         json.deepClonedInto(this)

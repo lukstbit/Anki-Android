@@ -30,7 +30,6 @@ import com.ichi2.anki.CollectionHelper
 import com.ichi2.anki.CrashReportService.sendExceptionReport
 import com.ichi2.anki.dialogs.DatabaseErrorDialog
 import com.ichi2.utils.DatabaseChangeDecorator
-import com.ichi2.utils.KotlinCleanup
 import net.ankiweb.rsdroid.Backend
 import net.ankiweb.rsdroid.database.AnkiSupportSQLiteDatabase
 import org.intellij.lang.annotations.Language
@@ -40,7 +39,7 @@ import timber.log.Timber
  * Database layer for AnkiDroid. Wraps an SupportSQLiteDatabase (provided by either the Rust backend
  * or the Android framework), and provides some helpers on top.
  */
-@KotlinCleanup("Improve documentation")
+// TODO Improve documentation
 @WorkerThread
 class DB(db: SupportSQLiteDatabase) {
     /**
@@ -183,10 +182,8 @@ class DB(db: SupportSQLiteDatabase) {
      * as the delimiter. Only use this method on internal functions where we can guarantee that the script does
      * not contain any non-statement-terminating semicolons.
      */
-    @KotlinCleanup("""Use Kotlin string. Change split so that there is no empty string after last ";".""")
     fun executeScript(@Language("SQL") sql: String) {
-        @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
-        val queries = java.lang.String(sql).split(";")
+        val queries = java.lang.String(sql).split(";").filter { it.isNotEmpty() }
         for (query in queries) {
             database.execSQL(query)
         }

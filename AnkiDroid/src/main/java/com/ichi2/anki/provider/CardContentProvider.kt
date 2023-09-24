@@ -914,7 +914,7 @@ class CardContentProvider : ContentProvider() {
                 if (did != null) {
                     throw IllegalArgumentException("Deck name already exists: $deckName")
                 }
-                if (!Decks.isValidDeckName(deckName)) {
+                if (deckName == null || !Decks.isValidDeckName(deckName)) {
                     throw IllegalArgumentException("Invalid deck name '$deckName'")
                 }
                 try {

@@ -32,7 +32,6 @@ import com.google.protobuf.kotlin.toByteStringUtf8
 import com.ichi2.libanki.backend.BackendUtils
 import com.ichi2.libanki.backend.exception.DeckRenameException
 import com.ichi2.libanki.utils.*
-import com.ichi2.utils.KotlinCleanup
 import net.ankiweb.rsdroid.RustCleanup
 import net.ankiweb.rsdroid.exceptions.BackendDeckIsFilteredException
 import net.ankiweb.rsdroid.exceptions.BackendNotFoundException
@@ -251,7 +250,6 @@ class Decks(private val col: Collection) {
      * The methods below are not in LibAnki.
      * ***********************************************************
      */
-    @KotlinCleanup("convert to extension method (possibly in servicelayer)")
     fun getActualDescription(): String = current().optString("desc", "")
 
     /** @return the fully qualified name of the subdeck, or null if unavailable */

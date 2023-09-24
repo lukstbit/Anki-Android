@@ -58,6 +58,10 @@ open class Media(private val col: Collection) {
      */
 
     /**
+     * String manipulation
+     * ***********************************************************
+     */
+    /**
      * Extract media filenames from an HTML string.
      *
      * @param string The string to scan for media filenames ([sound:...] or <img...>).
