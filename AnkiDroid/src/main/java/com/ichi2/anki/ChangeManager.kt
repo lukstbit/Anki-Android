@@ -25,7 +25,7 @@
  * displayed flag, without redrawing the entire review screen).
  */
 
-package com.ichi2.libanki
+package com.ichi2.anki
 
 import androidx.annotation.VisibleForTesting
 import anki.collection.OpChanges
@@ -35,6 +35,7 @@ import anki.collection.OpChangesWithCount
 import anki.collection.OpChangesWithId
 import anki.import_export.ImportResponse
 import com.ichi2.anki.CollectionManager.withCol
+import com.ichi2.libanki.Collection
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.lang.ref.WeakReference

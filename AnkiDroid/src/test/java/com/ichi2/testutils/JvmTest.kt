@@ -18,8 +18,8 @@ package com.ichi2.testutils
 
 import android.annotation.SuppressLint
 import androidx.annotation.CallSuper
+import com.ichi2.anki.ChangeManager
 import com.ichi2.anki.CollectionManager
-import com.ichi2.libanki.ChangeManager
 import com.ichi2.libanki.Collection
 import com.ichi2.libanki.Consts
 import com.ichi2.libanki.Note

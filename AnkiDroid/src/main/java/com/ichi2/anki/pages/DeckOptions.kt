@@ -23,7 +23,7 @@ import androidx.fragment.app.FragmentActivity
 import anki.collection.OpChanges
 import com.ichi2.anki.CollectionManager
 import com.ichi2.anki.R
-import com.ichi2.libanki.undoableOp
+import com.ichi2.anki.undoableOp
 import com.ichi2.libanki.updateDeckConfigsRaw
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

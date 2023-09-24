@@ -20,6 +20,7 @@ import androidx.fragment.app.FragmentActivity
 import com.google.android.material.snackbar.Snackbar
 import com.ichi2.anki.R
 import com.ichi2.anki.snackbar.showSnackbar
+import com.ichi2.anki.undoableOp
 import com.ichi2.anki.withProgress
 import com.ichi2.libanki.*
 

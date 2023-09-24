@@ -27,12 +27,12 @@ import com.ichi2.anki.FieldEditText
 import com.ichi2.anki.multimediacard.IMultimediaEditableNote
 import com.ichi2.anki.multimediacard.fields.*
 import com.ichi2.anki.multimediacard.impl.MultimediaEditableNote
+import com.ichi2.anki.undoableOp
 import com.ichi2.libanki.Card
 import com.ichi2.libanki.Consts
 import com.ichi2.libanki.Note
 import com.ichi2.libanki.NoteTypeId
 import com.ichi2.libanki.exception.EmptyMediaException
-import com.ichi2.libanki.undoableOp
 import com.ichi2.utils.CollectionUtils.average
 import org.json.JSONException
 import org.json.JSONObject
