@@ -1160,7 +1160,7 @@ open class DeckPicker :
                 getColUnsafe.modSchema()
             } catch (e: ConfirmModSchemaException) {
                 Timber.w("Forcing full sync")
-                e.log()
+                Timber.v(e)
                 // If libanki determines it's necessary to confirm the full sync then show a confirmation dialog
                 // We have to show the dialog via the DialogHandler since this method is called via an async task
                 val res = resources

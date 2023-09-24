@@ -16,21 +16,11 @@
 
 package com.ichi2.libanki.exception
 
-import timber.log.Timber
 import java.lang.Exception
 
 class ConfirmModSchemaException : Exception() {
-    /**
-     * Add the current exception to log.
-     */
-    fun log() {
-        Timber.v(this)
-    }
 
     companion object {
-        /**
-         *
-         */
         private const val serialVersionUID = -9215098969154590797L
     }
 }

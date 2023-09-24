@@ -776,7 +776,7 @@ open class CardTemplateEditor : AnkiActivity(), DeckSelectionListener {
                 mTemplateEditor.getColUnsafe.modSchema()
                 schemaChangingAction.run()
             } catch (e: ConfirmModSchemaException) {
-                e.log()
+                Timber.v(e)
                 val d = ConfirmationDialog()
                 d.setArgs(resources.getString(R.string.full_sync_confirmation))
                 val confirm = Runnable {

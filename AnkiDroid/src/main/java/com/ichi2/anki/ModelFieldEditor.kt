@@ -180,7 +180,7 @@ class ModelFieldEditor : AnkiActivity(), LocaleSelectionDialogHandler {
                     try {
                         addField(fieldName, true)
                     } catch (e: ConfirmModSchemaException) {
-                        e.log()
+                        Timber.v(e)
 
                         // Create dialogue to for schema change
                         val c = ConfirmationDialog()
@@ -189,7 +189,7 @@ class ModelFieldEditor : AnkiActivity(), LocaleSelectionDialogHandler {
                             try {
                                 addField(fieldName, false)
                             } catch (e1: ConfirmModSchemaException) {
-                                e1.log()
+                                Timber.v(e1)
                                 // This should never be thrown
                             }
                         }
@@ -250,7 +250,7 @@ class ModelFieldEditor : AnkiActivity(), LocaleSelectionDialogHandler {
                     showDialogFragment(it)
                 }
             } catch (e: ConfirmModSchemaException) {
-                e.log()
+                Timber.v(e)
                 ConfirmationDialog().let {
                     it.setConfirm(confirm)
                     it.setArgs(resources.getString(R.string.full_sync_confirmation))
@@ -270,7 +270,7 @@ class ModelFieldEditor : AnkiActivity(), LocaleSelectionDialogHandler {
                         true
                     } catch (e: ConfirmModSchemaException) {
                         // Should never be reached
-                        e.log()
+                        Timber.v(e)
                         false
                     }
                 }
@@ -303,7 +303,7 @@ class ModelFieldEditor : AnkiActivity(), LocaleSelectionDialogHandler {
                     try {
                         renameField()
                     } catch (e: ConfirmModSchemaException) {
-                        e.log()
+                        Timber.v(e)
 
                         // Handler mod schema confirmation
                         val c = ConfirmationDialog()
@@ -313,7 +313,7 @@ class ModelFieldEditor : AnkiActivity(), LocaleSelectionDialogHandler {
                             try {
                                 renameField()
                             } catch (e1: ConfirmModSchemaException) {
-                                e1.log()
+                                Timber.v(e1)
                                 // This should never be thrown
                             }
                         }
@@ -355,7 +355,7 @@ class ModelFieldEditor : AnkiActivity(), LocaleSelectionDialogHandler {
                             collection.modSchema()
                             repositionField(pos - 1)
                         } catch (e: ConfirmModSchemaException) {
-                            e.log()
+                            Timber.v(e)
 
                             // Handle mod schema confirmation
                             val c = ConfirmationDialog()
@@ -387,7 +387,7 @@ class ModelFieldEditor : AnkiActivity(), LocaleSelectionDialogHandler {
                         notetypes.moveField(mNotetype, mNoteFields.getJSONObject(currentPos), index)
                         true
                     } catch (e: ConfirmModSchemaException) {
-                        e.log()
+                        Timber.v(e)
                         // Should never be reached
                         false
                     }
@@ -420,7 +420,7 @@ class ModelFieldEditor : AnkiActivity(), LocaleSelectionDialogHandler {
             collection.modSchema()
             launchCatchingTask { changeSortField(mNotetype, currentPos) }
         } catch (e: ConfirmModSchemaException) {
-            e.log()
+            Timber.v(e)
             // Handler mMod schema confirmation
             val c = ConfirmationDialog()
             c.setArgs(resources.getString(R.string.full_sync_confirmation))
