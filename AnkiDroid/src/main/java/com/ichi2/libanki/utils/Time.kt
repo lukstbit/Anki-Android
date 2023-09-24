@@ -25,6 +25,8 @@ import kotlin.math.max
 import java.sql.Date as SqlDate
 import java.util.Date as UtilDate
 
+const val SECONDS_PER_DAY = 86400L
+
 /** Allows injection of time dependencies  */
 abstract class Time {
     /** Date of this time  */

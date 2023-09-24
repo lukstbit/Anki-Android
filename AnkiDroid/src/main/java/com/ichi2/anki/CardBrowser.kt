@@ -72,12 +72,12 @@ import com.ichi2.anki.servicelayer.totalLapsesOfNote
 import com.ichi2.anki.servicelayer.totalReviewsForNote
 import com.ichi2.anki.snackbar.showSnackbar
 import com.ichi2.anki.ui.BasicItemSelectedListener
-import com.ichi2.anki.utils.SECONDS_PER_DAY
 import com.ichi2.anki.utils.roundedTimeSpanUnformatted
 import com.ichi2.anki.widgets.DeckDropDownAdapter.SubtitleListener
 import com.ichi2.annotations.NeedsTest
 import com.ichi2.async.*
 import com.ichi2.libanki.*
+import com.ichi2.anki.utils.SECONDS_PER_DAY
 import com.ichi2.ui.CardBrowserSearchView
 import com.ichi2.ui.FixedTextView
 import com.ichi2.utils.*

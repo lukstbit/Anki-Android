@@ -24,8 +24,6 @@ import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.roundToInt
 
-const val SECONDS_PER_DAY = 86400L
-
 private const val TIME_MINUTE_LONG: Long = 60 // seconds
 private const val TIME_HOUR_LONG = 60 * TIME_MINUTE_LONG
 private const val TIME_DAY_LONG = 24 * TIME_HOUR_LONG

@@ -29,10 +29,6 @@ import anki.config.OptionalStringConfigKey
 import anki.frontend.SchedulingStatesWithContext
 import anki.i18n.FormatTimespanRequest
 import anki.scheduler.*
-import com.google.android.material.snackbar.Snackbar
-import com.ichi2.anki.R
-import com.ichi2.anki.snackbar.showSnackbar
-import com.ichi2.anki.utils.SECONDS_PER_DAY
 import com.ichi2.libanki.Card
 import com.ichi2.libanki.CardId
 import com.ichi2.libanki.Collection
@@ -41,9 +37,9 @@ import com.ichi2.libanki.DeckConfig
 import com.ichi2.libanki.DeckId
 import com.ichi2.libanki.NoteId
 import com.ichi2.libanki.Utils
+import com.ichi2.libanki.utils.SECONDS_PER_DAY
 import com.ichi2.libanki.utils.TimeManager.time
 import net.ankiweb.rsdroid.RustCleanup
-import timber.log.Timber
 
 data class CurrentQueueState(
     val topCard: Card,
@@ -727,25 +723,6 @@ open class Scheduler(val col: Collection) {
 
     fun timeboxSecs(): Int {
         return col.config.get("timeLim") ?: 0
-    }
-}
-
-/**
- * Tell the user the current card has leeched and whether it was suspended. Timber if no activity.
- * @param card A card that just became a leech
- * @param activity An activity on which a message can be shown
- */
-fun leech(card: Card, activity: Activity?) {
-    if (activity != null) {
-        val res = activity.resources
-        val leechMessage: String = if (card.queue < 0) {
-            res.getString(R.string.leech_suspend_notification)
-        } else {
-            res.getString(R.string.leech_notification)
-        }
-        activity.showSnackbar(leechMessage, Snackbar.LENGTH_SHORT)
-    } else {
-        Timber.w("LeechHook :: could not show leech snackbar as activity was null")
     }
 }
 
