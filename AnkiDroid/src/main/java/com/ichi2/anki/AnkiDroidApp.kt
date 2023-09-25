@@ -50,6 +50,7 @@ import com.ichi2.anki.services.BootService
 import com.ichi2.anki.services.NotificationService
 import com.ichi2.anki.ui.dialogs.ActivityAgnosticDialogs
 import com.ichi2.annotations.NeedsTest
+import com.ichi2.anki.utils.ErrorReporterImpl
 import com.ichi2.anki.utils.StringProviderImpl
 import com.ichi2.compat.CompatHelper
 import com.ichi2.libanki.Libanki
@@ -105,13 +106,14 @@ open class AnkiDroidApp : Application() {
             }
         }
         instance = this
-        Libanki.init(
-            stringProvider = StringProviderImpl()
-        )
         // Get preferences
         val preferences = this.sharedPrefs()
 
         CrashReportService.initialize(this)
+        Libanki.init(
+            stringProvider = StringProviderImpl(),
+            errorReporter = ErrorReporterImpl()
+        )
         if (BuildConfig.DEBUG) {
             // Enable verbose error logging and do method tracing to put the Class name as log tag
             if (isRobolectric) {

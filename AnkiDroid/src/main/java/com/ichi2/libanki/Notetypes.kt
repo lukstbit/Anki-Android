@@ -38,7 +38,6 @@ import anki.notetypes.NotetypeNameId
 import anki.notetypes.NotetypeNameIdUseCount
 import anki.notetypes.StockNotetype
 import com.google.protobuf.ByteString
-import com.ichi2.anki.CrashReportService
 import com.ichi2.annotations.NeedsTest
 import com.ichi2.libanki.Consts.MODEL_CLOZE
 import com.ichi2.libanki.Utils.checksum
@@ -411,7 +410,7 @@ class Notetypes(val col: Collection) {
             _addField(m, field)
         } catch (e: ConfirmModSchemaException) {
             Timber.w(e, "Unexpected mod schema")
-            CrashReportService.sendExceptionReport(e, "addFieldInNewModel: Unexpected mod schema")
+            Libanki.errorReporter.sendExceptionReport(e, "addFieldInNewModel: Unexpected mod schema")
             throw IllegalStateException("ConfirmModSchemaException should not be thrown", e)
         }
     }
@@ -425,7 +424,7 @@ class Notetypes(val col: Collection) {
             _addTemplate(m, template)
         } catch (e: ConfirmModSchemaException) {
             Timber.w(e, "Unexpected mod schema")
-            CrashReportService.sendExceptionReport(e, "addTemplateInNewModel: Unexpected mod schema")
+            Libanki.errorReporter.sendExceptionReport(e, "addTemplateInNewModel: Unexpected mod schema")
             throw IllegalStateException("ConfirmModSchemaException should not be thrown", e)
         }
     }
