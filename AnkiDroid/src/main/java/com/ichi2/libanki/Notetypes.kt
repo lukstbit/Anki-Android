@@ -47,8 +47,6 @@ import com.ichi2.libanki.backend.BackendUtils.to_json_bytes
 import com.ichi2.libanki.exception.ConfirmModSchemaException
 import com.ichi2.libanki.utils.*
 import com.ichi2.libanki.utils.Assert
-import com.ichi2.utils.HashUtil
-import com.ichi2.utils.jsonObjectIterable
 import net.ankiweb.rsdroid.RustCleanup
 import net.ankiweb.rsdroid.exceptions.BackendNotFoundException
 import org.json.JSONArray
@@ -651,7 +649,7 @@ class Notetypes(val col: Collection) {
         fun fieldMap(m: com.ichi2.libanki.NotetypeJson): Map<String, Pair<Int, JSONObject>> {
             val flds = m.getJSONArray("flds")
             // TreeMap<Integer, String> map = new TreeMap<Integer, String>();
-            val result: MutableMap<String, Pair<Int, JSONObject>> = HashUtil.hashMapInit(flds.length())
+            val result: MutableMap<String, Pair<Int, JSONObject>> = mutableMapOf()
             for (f in flds.jsonObjectIterable()) {
                 result[f.getString("name")] = Pair(f.getInt("ord"), f)
             }
