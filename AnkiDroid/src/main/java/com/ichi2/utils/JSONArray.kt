@@ -41,6 +41,7 @@
  */
 package com.ichi2.utils
 
+import com.ichi2.libanki.utils.deepClone
 import com.ichi2.libanki.utils.jsonObjectIterable
 import org.json.JSONArray
 import org.json.JSONObject

@@ -41,8 +41,6 @@
 */
 package com.ichi2.utils
 
-import androidx.annotation.CheckResult
-import com.ichi2.libanki.utils.deepClonedInto
 import org.json.JSONObject
 
 /*
@@ -51,9 +49,6 @@ and it throws JSONException instead of JSONException.
 Furthermore, it returns JSONObject and JSONArray
 
 */
-
-@CheckResult
-fun JSONObject.deepClone(): JSONObject = deepClonedInto(JSONObject())
 
 /**
  * Change type from JSONObject to JSONObject.

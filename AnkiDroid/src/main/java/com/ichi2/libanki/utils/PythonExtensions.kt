@@ -16,6 +16,7 @@
 
 package com.ichi2.libanki.utils
 
+import androidx.annotation.CheckResult
 import androidx.annotation.VisibleForTesting
 import com.ichi2.utils.deepClone
 import org.json.JSONArray
@@ -165,3 +166,6 @@ fun <T : JSONObject> JSONObject.deepClonedInto(clone: T): T {
     }
     return clone
 }
+
+@CheckResult
+fun JSONObject.deepClone(): JSONObject = deepClonedInto(JSONObject())

@@ -27,8 +27,8 @@ import com.ichi2.libanki.TemplateManager.PartiallyRenderedCard.Companion.avTagsT
 import com.ichi2.libanki.backend.BackendUtils
 import com.ichi2.libanki.backend.model.toBackendNote
 import com.ichi2.libanki.utils.append
+import com.ichi2.libanki.utils.deepClone
 import com.ichi2.libanki.utils.len
-import com.ichi2.utils.deepClone
 import net.ankiweb.rsdroid.RustCleanup
 import net.ankiweb.rsdroid.exceptions.BackendTemplateException
 import org.intellij.lang.annotations.Language
