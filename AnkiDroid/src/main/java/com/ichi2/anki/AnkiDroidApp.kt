@@ -50,7 +50,9 @@ import com.ichi2.anki.services.BootService
 import com.ichi2.anki.services.NotificationService
 import com.ichi2.anki.ui.dialogs.ActivityAgnosticDialogs
 import com.ichi2.annotations.NeedsTest
+import com.ichi2.anki.utils.StringProviderImpl
 import com.ichi2.compat.CompatHelper
+import com.ichi2.libanki.Libanki
 import com.ichi2.utils.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -103,7 +105,9 @@ open class AnkiDroidApp : Application() {
             }
         }
         instance = this
-
+        Libanki.init(
+            stringProvider = StringProviderImpl()
+        )
         // Get preferences
         val preferences = this.sharedPrefs()
 

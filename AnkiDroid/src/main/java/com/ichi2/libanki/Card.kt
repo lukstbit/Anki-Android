@@ -18,8 +18,6 @@
 package com.ichi2.libanki
 
 import androidx.annotation.VisibleForTesting
-import com.ichi2.anki.AnkiDroidApp
-import com.ichi2.anki.R
 import com.ichi2.anki.servicelayer.NoteService.avgEase
 import com.ichi2.libanki.Consts.CARD_QUEUE
 import com.ichi2.libanki.Consts.CARD_TYPE
@@ -404,7 +402,7 @@ open class Card : Cloneable {
         val date: Long
         val due = due
         date = if (isInDynamicDeck) {
-            return AnkiDroidApp.appResources.getString(R.string.card_browser_due_filtered_card)
+            return Libanki.stringProvider.cardBrowserDueFilteredCard()
         } else if (queue == Consts.QUEUE_TYPE_LRN) {
             due
         } else if (queue == Consts.QUEUE_TYPE_NEW || type == Consts.CARD_TYPE_NEW) {

@@ -16,8 +16,6 @@
 package com.ichi2.libanki
 
 import androidx.annotation.StringRes
-import com.ichi2.anki.AnkiDroidApp
-import com.ichi2.anki.R
 
 // TODO remove this file. Only used in tests.
 @Suppress("FunctionName") // `_new` was a name in libAnki
@@ -59,27 +57,27 @@ class StdModels(
     }
 
     val defaultName: String
-        get() = AnkiDroidApp.appResources.getString(defaultNameRes)
+        get() = Libanki.stringProvider.localizedString(defaultNameRes)
 
     companion object {
         // / create the standard models
         val BASIC_MODEL = StdModels(
             { mm: Notetypes, name: String ->
                 val m = mm.newModel(name)
-                val frontName = AnkiDroidApp.appResources.getString(R.string.front_field_name)
+                val frontName = Libanki.stringProvider.modelFrontFieldName()
                 var fm = mm.newField(frontName)
                 mm.addFieldInNewModel(m, fm)
-                val backName = AnkiDroidApp.appResources.getString(R.string.back_field_name)
+                val backName = Libanki.stringProvider.modelBackFieldName()
                 fm = mm.newField(backName)
                 mm.addFieldInNewModel(m, fm)
-                val cardOneName = AnkiDroidApp.appResources.getString(R.string.card_n_name, 1)
+                val cardOneName = Libanki.stringProvider.cardOneName()
                 val t = Notetypes.newTemplate(cardOneName)
                 t.put("qfmt", "{{$frontName}}")
                 t.put("afmt", "{{FrontSide}}\n\n<hr id=answer>\n\n{{$backName}}")
                 mm.addTemplateInNewModel(m, t)
                 m
             },
-            R.string.basic_model_name
+            Libanki.stringProvider.basicModelName()
         )
         val BASIC_TYPING_MODEL = StdModels(
             { mm: Notetypes, name: String ->
@@ -91,33 +89,33 @@ class StdModels(
                 t.put("afmt", "{{$frontName}}\n\n<hr id=answer>\n\n{{type:$backName}}")
                 m
             },
-            R.string.basic_typing_model_name
+            Libanki.stringProvider.basicTypingModelName()
         )
         private val FORWARD_REVERSE_MODEL = StdModels(
             { mm: Notetypes, name: String ->
                 val m = BASIC_MODEL._new(mm, name)
                 val frontName = m.getJSONArray("flds").getJSONObject(0).getString("name")
                 val backName = m.getJSONArray("flds").getJSONObject(1).getString("name")
-                val cardTwoName = AnkiDroidApp.appResources.getString(R.string.card_n_name, 2)
+                val cardTwoName = Libanki.stringProvider.cardTwoName()
                 val t = Notetypes.newTemplate(cardTwoName)
                 t.put("qfmt", "{{$backName}}")
                 t.put("afmt", "{{FrontSide}}\n\n<hr id=answer>\n\n{{$frontName}}")
                 mm.addTemplateInNewModel(m, t)
                 m
             },
-            R.string.forward_reverse_model_name
+            Libanki.stringProvider.forwardReverseModelName()
         )
         private val FORWARD_OPTIONAL_REVERSE_MODEL = StdModels(
             { mm: Notetypes, name: String ->
                 val m = FORWARD_REVERSE_MODEL._new(mm, name)
-                val av = AnkiDroidApp.appResources.getString(R.string.field_to_ask_front_name)
+                val av = Libanki.stringProvider.fieldToAskFrontName()
                 val fm = mm.newField(av)
                 mm.addFieldInNewModel(m, fm)
                 val t = m.getJSONArray("tmpls").getJSONObject(1)
                 t.put("qfmt", "{{#" + av + "}}" + t.getString("qfmt") + "{{/" + av + "}}")
                 m
             },
-            R.string.forward_optional_reverse_model_name
+            Libanki.stringProvider.forwardOptionalReverseModelName()
         )
         private val CLOZE_MODEL = StdModels(
             { mm: Notetypes, name: String? ->
@@ -125,15 +123,13 @@ class StdModels(
                     name!!
                 )
                 m.put("type", Consts.MODEL_CLOZE)
-                val txt = AnkiDroidApp.appResources.getString(R.string.text_field_name)
+                val txt = Libanki.stringProvider.clozeTextFieldName()
                 var fm = mm.newField(txt)
                 mm.addFieldInNewModel(m, fm)
-                val fieldExtraName =
-                    AnkiDroidApp.appResources.getString(R.string.extra_field_name_new)
+                val fieldExtraName = Libanki.stringProvider.clozeExtraFieldNameNew()
                 fm = mm.newField(fieldExtraName)
                 mm.addFieldInNewModel(m, fm)
-                val cardTypeClozeName =
-                    AnkiDroidApp.appResources.getString(R.string.cloze_model_name)
+                val cardTypeClozeName = Libanki.stringProvider.clozeCardTypeName()
                 val t = Notetypes.newTemplate(cardTypeClozeName)
                 val fmt = "{{cloze:$txt}}"
                 m.put(
@@ -153,7 +149,7 @@ class StdModels(
                 mm.addTemplateInNewModel(m, t)
                 m
             },
-            R.string.cloze_model_name
+            Libanki.stringProvider.clozeModelName()
         )
 
         private val IMAGE_OCCLUSION_MODEL = StdModels({ _, _ -> NotetypeJson() }, 0)
