@@ -46,7 +46,7 @@ import com.ichi2.libanki.backend.BackendUtils
 import com.ichi2.libanki.backend.BackendUtils.to_json_bytes
 import com.ichi2.libanki.exception.ConfirmModSchemaException
 import com.ichi2.libanki.utils.*
-import com.ichi2.utils.Assert
+import com.ichi2.libanki.utils.Assert
 import com.ichi2.utils.HashUtil
 import com.ichi2.utils.jsonObjectIterable
 import net.ankiweb.rsdroid.RustCleanup

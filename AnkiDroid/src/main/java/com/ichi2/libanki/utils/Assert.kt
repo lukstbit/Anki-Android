@@ -15,7 +15,7 @@
  * this program.  If not, see <http://www.gnu.org/licenses/>.                           *
  ****************************************************************************************/
 
-package com.ichi2.utils
+package com.ichi2.libanki.utils
 
 import org.jetbrains.annotations.Contract
 import java.lang.AssertionError

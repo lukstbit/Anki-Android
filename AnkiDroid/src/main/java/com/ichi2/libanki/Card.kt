@@ -22,9 +22,9 @@ import com.ichi2.anki.servicelayer.NoteService.avgEase
 import com.ichi2.libanki.Consts.CARD_QUEUE
 import com.ichi2.libanki.Consts.CARD_TYPE
 import com.ichi2.libanki.TemplateManager.TemplateRenderContext.TemplateRenderOutput
+import com.ichi2.libanki.utils.Assert
 import com.ichi2.libanki.utils.SECONDS_PER_DAY
 import com.ichi2.libanki.utils.TimeManager
-import com.ichi2.utils.Assert
 import com.ichi2.utils.LanguageUtil
 import net.ankiweb.rsdroid.RustCleanup
 import org.json.JSONObject
