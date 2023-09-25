@@ -110,3 +110,15 @@ abstract class Time {
         }
     }
 }
+
+fun getDayStart(time: Time): Long {
+    val cal = time.calendar()
+    if (cal[Calendar.HOUR_OF_DAY] < 4) {
+        cal.roll(Calendar.DAY_OF_YEAR, -1)
+    }
+    cal[Calendar.HOUR_OF_DAY] = 4
+    cal[Calendar.MINUTE] = 0
+    cal[Calendar.SECOND] = 0
+    cal[Calendar.MILLISECOND] = 0
+    return cal.timeInMillis
+}
