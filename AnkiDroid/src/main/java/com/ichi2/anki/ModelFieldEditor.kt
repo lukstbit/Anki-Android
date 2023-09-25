@@ -44,13 +44,13 @@ import com.ichi2.anki.snackbar.showSnackbar
 import com.ichi2.libanki.Collection
 import com.ichi2.libanki.NotetypeJson
 import com.ichi2.libanki.exception.ConfirmModSchemaException
+import com.ichi2.libanki.utils.toStringList
 import com.ichi2.ui.FixedEditText
 import com.ichi2.utils.customView
 import com.ichi2.utils.negativeButton
 import com.ichi2.utils.positiveButton
 import com.ichi2.utils.show
 import com.ichi2.utils.title
-import com.ichi2.utils.toStringList
 import com.ichi2.widget.WidgetStatus
 import org.json.JSONArray
 import org.json.JSONException

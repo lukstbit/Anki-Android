@@ -42,7 +42,6 @@
 package com.ichi2.utils
 
 import com.ichi2.libanki.utils.deepClone
-import com.ichi2.libanki.utils.jsonObjectIterable
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -77,17 +76,4 @@ fun JSONArray.stringIterator(): Iterator<String> {
             return string
         }
     }
-}
-
-/**
- * @return Given an array of objects, return the array of the value with `key`, assuming that they are String.
- * E.g. templates, fields are a JSONArray whose objects have name
- */
-@KotlinCleanup("simplify fun with apply and forEach")
-fun JSONArray.toStringList(key: String?): List<String> {
-    val l: MutableList<String> = ArrayList(length())
-    for (`object` in jsonObjectIterable()) {
-        l.add(`object`.getString(key!!))
-    }
-    return l
 }
