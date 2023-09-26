@@ -21,11 +21,14 @@ import androidx.annotation.VisibleForTesting
 import com.ichi2.libanki.exception.WrongId
 import net.ankiweb.rsdroid.RustCleanup
 import org.json.JSONObject
-import timber.log.Timber
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.util.*
 import java.util.regex.Pattern
 
 class Note : Cloneable {
+
+    private val logger: Logger = LoggerFactory.getLogger(Note::class.java)
     val col: Collection
 
     /**
@@ -74,7 +77,7 @@ class Note : Cloneable {
     }
 
     fun load() {
-        Timber.d("load()")
+        logger.debug("load()")
         col.db
             .query(
                 "SELECT guid, mid, mod, usn, tags, flds, flags, data FROM notes WHERE id = ?",

@@ -18,7 +18,8 @@ package com.ichi2.libanki
 
 import com.ichi2.libanki.utils.deepClonedInto
 import org.json.JSONObject
-import timber.log.Timber
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 class DeckConfig
 /**
@@ -47,17 +48,19 @@ class DeckConfig
         }
 
     companion object {
-        fun parseTimer(config: JSONObject): Boolean? {
+        private val logger: Logger = LoggerFactory.getLogger(DeckConfig::class.java)
+
+        private fun parseTimer(config: JSONObject): Boolean? {
             // Note: Card.py used != 0, DeckOptions used == 1
             return try {
                 // #6089 - Anki 2.1.24 changed this to a bool, reverted in 2.1.25.
                 config.getInt("timer") != 0
             } catch (e: Exception) {
-                Timber.w(e)
+                logger.warn("", e)
                 try {
                     config.getBoolean("timer")
                 } catch (ex: Exception) {
-                    Timber.w(ex)
+                    logger.warn("", ex)
                     null
                 }
             }

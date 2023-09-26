@@ -20,7 +20,8 @@ package com.ichi2.libanki
 import androidx.annotation.WorkerThread
 import com.google.protobuf.kotlin.toByteString
 import com.ichi2.libanki.exception.EmptyMediaException
-import timber.log.Timber
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.io.*
 
 /**
@@ -29,6 +30,7 @@ import java.io.*
  */
 @WorkerThread
 open class Media(private val col: Collection) {
+    private val logger: Logger = LoggerFactory.getLogger(Media::class.java)
     val dir = getCollectionMediaPath(col.path)
 
     init {

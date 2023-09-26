@@ -33,7 +33,8 @@ import com.ichi2.utils.DatabaseChangeDecorator
 import net.ankiweb.rsdroid.Backend
 import net.ankiweb.rsdroid.database.AnkiSupportSQLiteDatabase
 import org.intellij.lang.annotations.Language
-import timber.log.Timber
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 /**
  * Database layer for AnkiDroid. Wraps an SupportSQLiteDatabase (provided by either the Rust backend
@@ -42,6 +43,9 @@ import timber.log.Timber
 // TODO Improve documentation
 @WorkerThread
 class DB(db: SupportSQLiteDatabase) {
+
+    private val logger: Logger = LoggerFactory.getLogger(DB::class.java)
+
     /**
      * The collection, which is actually an SQLite database.
      */
@@ -61,12 +65,15 @@ class DB(db: SupportSQLiteDatabase) {
      * Note: this does not apply when using the Rust backend (ie for Collection)
      */
     class SupportSQLiteOpenHelperCallback(version: Int) : AnkiSupportSQLiteDatabase.DefaultDbCallback(version) {
+
+        private val logger: Logger = LoggerFactory.getLogger(SupportSQLiteOpenHelperCallback::class.java)
+
         /** Send error message when corruption is encountered. We don't call super() as we don't accidentally
          * want to opt-in to the standard Android behaviour of removing the corrupted file, but as we're
          * inheriting from DefaultDbCallback which does not call super either, it would be technically safe
          * if we did so.  */
         override fun onCorruption(db: SupportSQLiteDatabase) {
-            Timber.e("The database has been corrupted: %s", db.path)
+            logger.error("The database has been corrupted: {}", db.path)
             sendExceptionReport(
                 RuntimeException("Database corrupted"),
                 "DB.MyDbErrorHandler.onCorruption",
@@ -83,11 +90,11 @@ class DB(db: SupportSQLiteDatabase) {
     fun close() {
         try {
             database.close()
-            Timber.d("Database %s closed = %s", database.path, !database.isOpen)
+            logger.debug("Database {} closed = {}", database.path, !database.isOpen)
         } catch (e: Exception) {
             // The pre-framework requery API ate this exception, but the framework API exposes it.
             // We may want to propagate it in the future, but for now maintain the old API and log.
-            Timber.e(e, "Failed to close database %s", database.path)
+            logger.error("Failed to close database {}", database.path, e)
         }
     }
 

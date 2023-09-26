@@ -43,7 +43,8 @@ import com.ichi2.utils.VersionUtils
 import net.ankiweb.rsdroid.Backend
 import net.ankiweb.rsdroid.RustCleanup
 import net.ankiweb.rsdroid.exceptions.BackendInvalidInputException
-import timber.log.Timber
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.io.*
 import java.util.*
 
@@ -67,6 +68,9 @@ open class Collection(
      */
     val backend: Backend
 ) {
+
+    private val logger: Logger = LoggerFactory.getLogger(Collection::class.java)
+
     /** Access backend translations */
     val tr = backend.tr
 
@@ -193,13 +197,13 @@ open class Collection(
             }
             dbInternal = null
             _closeLog()
-            Timber.i("Collection closed")
+            logger.info("Collection closed")
         }
     }
 
     /** True if DB was created */
     fun reopen(afterFullSync: Boolean = false): Boolean {
-        Timber.i("(Re)opening Database: %s", path)
+        logger.info("(Re)opening Database: {}", path)
         return if (dbClosed) {
             val (db_, created) = Storage.openDB(path, backend, afterFullSync)
             dbInternal = db_
@@ -595,13 +599,14 @@ open class Collection(
             try {
                 it.println(s)
             } catch (e: Exception) {
-                Timber.w(e, "Failed to write to collection log")
+                logger.warn("Failed to write to collection log", e)
             }
         }
-        Timber.d(s)
+        logger.debug(s)
     }
 
     private fun _openLog() {
+        logger.info("Opening Collection Log")
         if (!debugLog) {
             return
         }
@@ -618,14 +623,14 @@ open class Collection(
             mLogHnd = PrintWriter(BufferedWriter(FileWriter(lpath, true)), true)
         } catch (e: IOException) {
             // turn off logging if we can't open the log file
-            Timber.e("Failed to open collection.log file - disabling logging")
+            logger.error("Failed to open collection.log file - disabling logging")
             debugLog = false
         }
     }
 
     private fun _closeLog() {
         if (!debugLog) return
-        Timber.i("Closing Collection Log")
+        logger.info("Closing Collection Log")
         mLogHnd?.close()
         mLogHnd = null
     }

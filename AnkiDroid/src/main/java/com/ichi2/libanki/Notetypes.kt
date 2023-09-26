@@ -50,7 +50,8 @@ import net.ankiweb.rsdroid.RustCleanup
 import net.ankiweb.rsdroid.exceptions.BackendNotFoundException
 import org.json.JSONArray
 import org.json.JSONObject
-import timber.log.Timber
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 class NoteTypeNameID(val name: String, val id: NoteTypeId)
 
@@ -61,11 +62,13 @@ private typealias Field = JSONObject // Dict<str, Any>
 private typealias Template = JSONObject // Dict<str, Union3<str, int, Unit>>
 
 class Notetypes(val col: Collection) {
+
+    private val logger: Logger = LoggerFactory.getLogger(Notetypes::class.java)
+
     /*
     # Saving/loading registry
     #############################################################
      */
-
     private var _cache: HashMap<int, NotetypeJson> = HashMap()
 
     init {
@@ -76,7 +79,7 @@ class Notetypes(val col: Collection) {
     @RustCleanup("templates is not needed, m should be non-null")
     fun save(m: NotetypeJson?, @Suppress("UNUSED_PARAMETER") templates: Boolean = true) {
         if (m == null) {
-            Timber.w("a null model is no longer supported - data is automatically flushed")
+            logger.warn("a null model is no longer supported - data is automatically flushed")
             return
         }
         // legacy code expects preserve_usn=false behaviour, but that
@@ -409,7 +412,7 @@ class Notetypes(val col: Collection) {
         try {
             _addField(m, field)
         } catch (e: ConfirmModSchemaException) {
-            Timber.w(e, "Unexpected mod schema")
+            logger.warn("Unexpected mod schema", e)
             Libanki.errorReporter.sendExceptionReport(e, "addFieldInNewModel: Unexpected mod schema")
             throw IllegalStateException("ConfirmModSchemaException should not be thrown", e)
         }
@@ -423,7 +426,7 @@ class Notetypes(val col: Collection) {
         try {
             _addTemplate(m, template)
         } catch (e: ConfirmModSchemaException) {
-            Timber.w(e, "Unexpected mod schema")
+            logger.warn("Unexpected mod schema", e)
             Libanki.errorReporter.sendExceptionReport(e, "addTemplateInNewModel: Unexpected mod schema")
             throw IllegalStateException("ConfirmModSchemaException should not be thrown", e)
         }
@@ -610,22 +613,22 @@ class Notetypes(val col: Collection) {
         val cardIdsToDeleteSql = "select c2.id from cards c2, notes n2 where c2.nid=n2.id and n2.mid = ? and c2.ord  in " + Utils.ids2str(ords)
         val cids: List<Long> = col.db.queryLongList(cardIdsToDeleteSql, modelId)
         // Timber.d("cardIdsToDeleteSql was ' %s' and got %s", cardIdsToDeleteSql, Utils.ids2str(cids));
-        Timber.d("getCardIdsForModel found %s cards to delete for model %s and ords %s", cids.size, modelId, Utils.ids2str(ords))
+        logger.debug("getCardIdsForModel found {} cards to delete for model {} and ords {}", cids.size, modelId, Utils.ids2str(ords))
 
         // all notes with this template must have at least two cards, or we could end up creating orphaned notes
         val noteCountPreDeleteSql = "select count(distinct(nid)) from cards where nid in (select id from notes where mid = ?)"
         val preDeleteNoteCount: Int = col.db.queryScalar(noteCountPreDeleteSql, modelId)
-        Timber.d("noteCountPreDeleteSql was '%s'", noteCountPreDeleteSql)
-        Timber.d("preDeleteNoteCount is %s", preDeleteNoteCount)
+        logger.debug("noteCountPreDeleteSql was '{}'", noteCountPreDeleteSql)
+        logger.debug("preDeleteNoteCount is {}", preDeleteNoteCount)
         val noteCountPostDeleteSql = "select count(distinct(nid)) from cards where nid in (select id from notes where mid = ?) and ord not in " + Utils.ids2str(ords)
-        Timber.d("noteCountPostDeleteSql was '%s'", noteCountPostDeleteSql)
+        logger.debug("noteCountPostDeleteSql was '{}'", noteCountPostDeleteSql)
         val postDeleteNoteCount: Int = col.db.queryScalar(noteCountPostDeleteSql, modelId)
-        Timber.d("postDeleteNoteCount would be %s", postDeleteNoteCount)
+        logger.debug("postDeleteNoteCount would be {}", postDeleteNoteCount)
         if (preDeleteNoteCount != postDeleteNoteCount) {
-            Timber.d("There will be orphan notes if these cards are deleted.")
+            logger.debug("There will be orphan notes if these cards are deleted.")
             return null
         }
-        Timber.d("Deleting these cards will not orphan notes.")
+        logger.debug("Deleting these cards will not orphan notes.")
         return cids
     }
 

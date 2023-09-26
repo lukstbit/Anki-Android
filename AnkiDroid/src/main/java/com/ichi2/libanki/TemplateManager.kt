@@ -33,6 +33,8 @@ import net.ankiweb.rsdroid.RustCleanup
 import net.ankiweb.rsdroid.exceptions.BackendTemplateException
 import org.intellij.lang.annotations.Language
 import org.json.JSONObject
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 private typealias Union<A, B> = Pair<A, B>
 private typealias TemplateReplacementList = MutableList<Union<String?, TemplateManager.TemplateReplacement?>>
@@ -118,7 +120,8 @@ class TemplateManager {
         template: JSONObject? = null,
         fill_empty: Boolean = false
     ) {
-        @RustCleanup("this was a WeakRef")
+        private val logger: Logger = LoggerFactory.getLogger(TemplateRenderContext::class.java)
+
         private val _col: Collection = col
         private var _card: Card = card
         private var _note: Note = note

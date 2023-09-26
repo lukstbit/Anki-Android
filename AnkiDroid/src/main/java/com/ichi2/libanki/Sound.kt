@@ -30,7 +30,9 @@ import com.ichi2.anki.AnkiDroidApp
 import com.ichi2.anki.ReadText
 import com.ichi2.libanki.Sound.OnErrorListener.ErrorHandling.CONTINUE_AUDIO
 import com.ichi2.libanki.Sound.SoundSide.*
-import timber.log.Timber
+import com.ichi2.utils.DisplayUtils
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.util.*
 import java.util.regex.Pattern
 
@@ -43,6 +45,8 @@ private typealias SoundPath = String
  * Called `Sound` Anki uses `[sound:]` for both audio and video
  */
 class Sound(private val soundPlayer: SoundPlayer, private val soundDir: String) {
+    
+    private val logger: Logger = LoggerFactory.getLogger(Sound::class.java)
     /**
      * @param soundDir base path to the media files
      */
@@ -104,7 +108,7 @@ class Sound(private val soundPlayer: SoundPlayer, private val soundDir: String) 
     fun addSounds(tags: List<SoundOrVideoTag>, side: SingleSoundSide) {
         val soundPathCollection = soundPaths.getOrPut(side.toSoundSide()) { mutableListOf() }
 
-        Timber.d("Adding %d sounds to side: %s", tags.size, side)
+        logger.debug("Adding {} sounds to side: {}", tags.size, side)
         val paths = tags.map { getSoundPath(soundDir, it.filename) }
         soundPathCollection.addAll(paths)
     }
@@ -121,7 +125,7 @@ class Sound(private val soundPlayer: SoundPlayer, private val soundDir: String) 
     fun playSounds(side: SoundSide, errorListener: OnErrorListener?) {
         // If there are sounds to play for the current card, start with the first one
         val soundPaths = getSounds(side) ?: return
-        Timber.d("playSounds: playing $side")
+        logger.debug("playSounds: playing $side")
         this.soundPlayer.playSound(
             soundPaths[0],
             PlayAllCompletionListener(side, errorListener),
@@ -140,9 +144,9 @@ class Sound(private val soundPlayer: SoundPlayer, private val soundDir: String) 
                 try {
                     metaRetriever.getDuration(context, uri)
                 } catch (e: Exception) {
-                    Timber.w(
-                        e,
-                        "metaRetriever - Error setting Data Source for mediaRetriever (media doesn't exist or forbidden?)."
+                    logger.warn(
+                        "metaRetriever - Error setting Data Source for mediaRetriever (media doesn't exist or forbidden?).",
+                        e
                     )
                     0
                 }
@@ -163,10 +167,10 @@ class Sound(private val soundPlayer: SoundPlayer, private val soundDir: String) 
             val paths = getSounds(side) ?: emptyList() // emptyList -> stopSounds()
             // If there are still more sounds to play for the current card, play the next one
             if (nextIndexToPlay < paths.size) {
-                Timber.i("Play all: Playing next sound")
+                logger.info("Play all: Playing next sound")
                 soundPlayer.playSound(paths[nextIndexToPlay++], this, errorListener)
             } else {
-                Timber.i("Play all: Completed - releasing sound")
+                logger.info("Play all: Completed - releasing sound")
                 soundPlayer.stopSounds()
             }
         }
@@ -289,11 +293,11 @@ open class SoundPlayer {
         onCompletionListener: OnCompletionListener?,
         errorListener: Sound.OnErrorListener?
     ) {
-        Timber.d("Playing single sound")
+        logger.debug("Playing single sound")
         val completionListener = onCompletionListener ?: SingleSoundCompletionListener()
         val errorHandler = errorListener
             ?: Sound.OnErrorListener { _: MediaPlayer?, what: Int, extra: Int, _: String? ->
-                Timber.w("Media Error: (%d, %d). Calling OnCompletionListener", what, extra)
+                logger.warn("Media Error: ({}, {}). Calling OnCompletionListener", what, extra)
                 CONTINUE_AUDIO
             }
         playSoundInternal(soundPath, completionListener, errorHandler)
@@ -307,7 +311,7 @@ open class SoundPlayer {
         completionListener: OnCompletionListener,
         errorHandler: Sound.OnErrorListener
     ) {
-        Timber.d("Playing %s", soundPath)
+        logger.debug("Playing {}", soundPath)
         val soundUri = Uri.parse(soundPath)
         val context = AnkiDroidApp.instance.applicationContext
 
@@ -316,10 +320,10 @@ open class SoundPlayer {
             try {
                 // Create media player
                 if (mMediaPlayer == null) {
-                    Timber.d("Creating media player for playback")
+                    logger.debug("Creating media player for playback")
                     mMediaPlayer = MediaPlayer()
                 } else {
-                    Timber.d("Resetting media for playback")
+                    logger.debug("Resetting media for playback")
                     mMediaPlayer!!.reset()
                 }
                 val mediaPlayer = mMediaPlayer!!
@@ -352,16 +356,16 @@ open class SoundPlayer {
                         .build()
                 )
                 mediaPlayer.setOnPreparedListener {
-                    Timber.d("Starting media player")
+                    logger.debug("Starting media player")
                     it.start()
                 }
                 mediaPlayer.setOnCompletionListener(completionListener)
                 mediaPlayer.prepareAsync()
-                Timber.d("Requesting audio focus")
+                logger.debug("Requesting audio focus")
 
                 AudioManagerCompat.requestAudioFocus(audioManager, audioFocusRequest)
             } catch (e: Exception) {
-                Timber.e(e, "playSounds - Error reproducing sound %s", soundPath)
+                logger.error("playSounds - Error reproducing sound {}", soundPath, e)
                 when (
                     errorHandler.onError(
                         mMediaPlayer,
@@ -371,7 +375,7 @@ open class SoundPlayer {
                     )
                 ) {
                     CONTINUE_AUDIO -> {
-                        Timber.d("Force playing next sound.")
+                        logger.debug("Force playing next sound.")
                         completionListener.onCompletion(mMediaPlayer)
                     }
                     Sound.OnErrorListener.ErrorHandling.STOP_AUDIO -> stopSounds()
@@ -387,7 +391,7 @@ open class SoundPlayer {
      * Releases the sound.
      */
     private fun releaseSound() {
-        Timber.d("Releasing sounds and abandoning audio focus")
+        logger.debug("Releasing sounds and abandoning audio focus")
         mMediaPlayer?.let {
             // Required to remove warning: "mediaplayer went away with unhandled events"
             // https://stackoverflow.com/questions/9609479/android-mediaplayer-went-away-with-unhandled-events
@@ -410,7 +414,7 @@ open class SoundPlayer {
     /** #5414 - Ensures playing a single sound performs cleanup  */
     private inner class SingleSoundCompletionListener : OnCompletionListener {
         override fun onCompletion(mp: MediaPlayer) {
-            Timber.d("Single Sound completed")
+            logger.debug("Single Sound completed")
             releaseSound()
         }
     }

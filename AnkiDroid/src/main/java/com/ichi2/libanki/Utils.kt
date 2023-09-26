@@ -20,7 +20,8 @@ package com.ichi2.libanki
 
 import androidx.core.text.HtmlCompat
 import com.ichi2.libanki.Consts.FIELD_SEPARATOR
-import timber.log.Timber
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.io.*
 import java.math.BigInteger
 import java.security.MessageDigest
@@ -32,6 +33,8 @@ import kotlin.math.*
 
 // TODO switch to standalone functions and properties and remove Utils container
 object Utils {
+    private val logger: Logger = LoggerFactory.getLogger(Utils::class.java)
+
     // Used to format doubles with English's decimal separator system
     val ENGLISH_LOCALE = Locale("en_US")
 
@@ -225,10 +228,10 @@ object Utils {
             md = MessageDigest.getInstance("SHA1")
             digest = md.digest(data.toByteArray(charset("UTF-8")))
         } catch (e: NoSuchAlgorithmException) {
-            Timber.e(e, "Utils.checksum: No such algorithm.")
+            logger.error("Utils.checksum: No such algorithm.", e)
             throw RuntimeException(e)
         } catch (e: UnsupportedEncodingException) {
-            Timber.e(e, "Utils.checksum :: UnsupportedEncodingException")
+            logger.error("Utils.checksum :: UnsupportedEncodingException", e)
         }
         val biginteger = BigInteger(1, digest)
         var result = biginteger.toString(16)
