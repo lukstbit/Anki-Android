@@ -26,7 +26,9 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Color
+import android.graphics.drawable.BitmapDrawable
 import android.hardware.camera2.CameraAccessException
 import android.hardware.camera2.CameraManager
 import android.net.Uri
@@ -63,6 +65,7 @@ import com.ichi2.ui.FixedEditText
 import com.ichi2.utils.*
 import timber.log.Timber
 import java.io.File
+import java.io.FileInputStream
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.io.IOException
@@ -517,7 +520,7 @@ class BasicImageFieldController : FieldControllerBase(), IFieldController {
         Timber.d("rotateAndCompress in path %s has size %d", f.absolutePath, f.length())
         // use same filename but with png extension for output file
         // Load into a bitmap with max size of 1920 pixels and rotate if necessary
-        var b = BitmapUtil.decodeFile(f, IMAGE_SAVE_MAX_WIDTH)
+        var b = decodeFile(f, IMAGE_SAVE_MAX_WIDTH)
         if (b == null) {
             // #5513 - if we can't decode a bitmap, leave the image alone
             // And display a warning to push users to compress manually.
@@ -565,7 +568,7 @@ class BasicImageFieldController : FieldControllerBase(), IFieldController {
             showSVGPreviewToast()
             hideImagePreview()
         } else {
-            var b = BitmapUtil.decodeFile(f, maxsize)
+            var b = decodeFile(f, maxsize)
             if (b == null) {
                 Timber.i("setImagePreview() could not process image %s", f.path)
                 return
@@ -585,7 +588,7 @@ class BasicImageFieldController : FieldControllerBase(), IFieldController {
 
     // ensure the previous preview is not visible
     private fun hideImagePreview() {
-        BitmapUtil.freeImageView(mImagePreview)
+        freeImageView(mImagePreview)
         if (::mCropButton.isInitialized) mCropButton.visibility = View.INVISIBLE
         if (::mImageFileSize.isInitialized) mImageFileSize.visibility = View.INVISIBLE
     }
@@ -815,6 +818,67 @@ class BasicImageFieldController : FieldControllerBase(), IFieldController {
                 val imageUri = BundleCompat.getParcelable(savedInstanceState, "mImageUri", Uri::class.java)
                 return ImageViewModel(imagePath, imageUri)
             }
+        }
+    }
+
+    private fun decodeFile(theFile: File, IMAGE_MAX_SIZE: Int): Bitmap? {
+        var bmp: Bitmap? = null
+        try {
+            if (!theFile.exists()) {
+                Timber.i("not displaying preview - image does not exist: '%s'", theFile.path)
+                return null
+            }
+            // Decode image size
+            val o = BitmapFactory.Options()
+            o.inJustDecodeBounds = true
+            var fis: FileInputStream? = null
+            try {
+                fis = FileInputStream(theFile)
+                BitmapFactory.decodeStream(fis, null, o)
+            } finally {
+                fis?.close()
+            }
+            var scale = 1
+            if (o.outHeight > IMAGE_MAX_SIZE || o.outWidth > IMAGE_MAX_SIZE) {
+                scale = Math.pow(
+                    2.0,
+                    Math.round(
+                        Math.log(IMAGE_MAX_SIZE / Math.max(o.outHeight, o.outWidth).toDouble()) /
+                            Math.log(0.5)
+                    ).toDouble()
+                ).toInt()
+            }
+
+            // Decode with inSampleSize
+            val o2 = BitmapFactory.Options()
+            o2.inSampleSize = scale
+            try {
+                fis = FileInputStream(theFile)
+                bmp = BitmapFactory.decodeStream(fis, null, o2)
+            } finally {
+                fis!!.close() // don't need a null check, as we reuse the variable.
+            }
+        } catch (e: java.lang.Exception) {
+            // #5513 - We don't know the reason for the crash, let's find out.
+            CrashReportService.sendExceptionReport(e, "BitmapUtil decodeFile")
+        }
+        return bmp
+    }
+
+    private fun freeImageView(imageView: ImageView?) {
+        // This code behaves differently on various OS builds. That is why put into try catch.
+        try {
+            if (imageView != null) {
+                @Suppress("UNUSED_VARIABLE")
+                val dr = (imageView.drawable ?: return) as? BitmapDrawable ?: return
+                val bd = imageView.drawable as BitmapDrawable
+                if (bd.bitmap != null) {
+                    bd.bitmap.recycle()
+                    imageView.setImageBitmap(null)
+                }
+            }
+        } catch (e: java.lang.Exception) {
+            Timber.e(e)
         }
     }
 
