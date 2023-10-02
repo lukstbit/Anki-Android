@@ -45,7 +45,6 @@ import com.ichi2.libanki.backend.BackendUtils
 import com.ichi2.libanki.backend.BackendUtils.to_json_bytes
 import com.ichi2.libanki.exception.ConfirmModSchemaException
 import com.ichi2.libanki.utils.*
-import com.ichi2.utils.Assert
 import com.ichi2.utils.HashUtil
 import com.ichi2.utils.KotlinCleanup
 import com.ichi2.utils.jsonObjectIterable
@@ -405,7 +404,7 @@ class Notetypes(val col: Collection) {
      */
     @RustCleanup("Since Kotlin doesn't have throws, this may not be needed")
     fun addFieldInNewModel(m: com.ichi2.libanki.NotetypeJson, field: JSONObject) {
-        Assert.that(Notetypes.isModelNew(m), "Model was assumed to be new, but is not")
+        assertThat(isModelNew(m), "Model was assumed to be new, but is not")
         try {
             _addField(m, field)
         } catch (e: ConfirmModSchemaException) {
@@ -418,7 +417,7 @@ class Notetypes(val col: Collection) {
     fun addTemplateInNewModel(m: com.ichi2.libanki.NotetypeJson, template: JSONObject) {
         // similar to addTemplate, but doesn't throw exception;
         // asserting the model is new.
-        Assert.that(Notetypes.isModelNew(m), "Model was assumed to be new, but is not")
+        assertThat(isModelNew(m), "Model was assumed to be new, but is not")
 
         try {
             _addTemplate(m, template)
@@ -433,14 +432,14 @@ class Notetypes(val col: Collection) {
         // similar to Anki's addField; but thanks to assumption that
         // mod is already changed, it never has to throw
         // ConfirmModSchemaException.
-        Assert.that(col.schemaChanged(), "Mod was assumed to be already changed, but is not")
+        assertThat(col.schemaChanged(), "Mod was assumed to be already changed, but is not")
         _addField(m, field)
     }
 
     fun addTemplateModChanged(m: com.ichi2.libanki.NotetypeJson, template: JSONObject) {
         // similar to addTemplate, but doesn't throw exception;
         // asserting the model is new.
-        Assert.that(col.schemaChanged(), "Mod was assumed to be already changed, but is not")
+        assertThat(col.schemaChanged(), "Mod was assumed to be already changed, but is not")
         _addTemplate(m, template)
     }
 
