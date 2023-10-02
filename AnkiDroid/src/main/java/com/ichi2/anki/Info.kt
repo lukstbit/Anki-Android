@@ -37,7 +37,6 @@ import com.ichi2.utils.IntentUtil.tryOpenIntent
 import com.ichi2.utils.VersionUtils.appName
 import com.ichi2.utils.VersionUtils.pkgVersionName
 import com.ichi2.utils.ViewGroupUtils.setRenderWorkaround
-import com.ichi2.utils.toRGBHex
 import timber.log.Timber
 
 private const val CHANGE_LOG_URL = "https://docs.ankidroid.org/changelog.html"
@@ -178,6 +177,12 @@ class Info : AnkiActivity() {
             super.onBackPressed()
         }
     }
+
+    /**
+     * [this] is `@ColorInt`
+     * Return RRGGBB in hexadecimal
+     */
+    private fun Int.toRGBHex() = String.format("#%06X", 0xFFFFFF and this)
 
     companion object {
         const val TYPE_EXTRA = "infoType"
