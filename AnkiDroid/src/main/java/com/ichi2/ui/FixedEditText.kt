@@ -42,7 +42,7 @@ import android.graphics.Canvas
 import android.util.AttributeSet
 import android.view.MotionEvent
 import androidx.appcompat.widget.AppCompatEditText
-import com.ichi2.utils.AndroidUiUtils.setFocusAndOpenKeyboard
+import com.ichi2.anki.utils.setFocusAndOpenKeyboard
 import timber.log.Timber
 
 open class FixedEditText : AppCompatEditText {
@@ -124,6 +124,6 @@ open class FixedEditText : AppCompatEditText {
      * Focuses the edit text and opens the soft keyboard.
      */
     fun focusWithKeyboard() {
-        setFocusAndOpenKeyboard(this)
+        setFocusAndOpenKeyboard()
     }
 }
