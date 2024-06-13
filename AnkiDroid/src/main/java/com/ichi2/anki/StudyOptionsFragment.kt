@@ -84,7 +84,6 @@ class StudyOptionsFragment : Fragment(), ChangeManager.Subscriber, Toolbar.OnMen
     // Flag to indicate if the fragment should load the deck options immediately after it loads
     private var loadWithDeckOptions = false
     private var fragmented = false
-    private var fullNewCountThread: Thread? = null
     private lateinit var listener: StudyOptionsListener
 
     /**
@@ -150,13 +149,6 @@ class StudyOptionsFragment : Fragment(), ChangeManager.Subscriber, Toolbar.OnMen
         refreshInterface()
         ChangeManager.subscribe(this)
         return studyOptionsView
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        if (fullNewCountThread != null) {
-            fullNewCountThread!!.interrupt()
-        }
     }
 
     override fun onResume() {
@@ -516,8 +508,7 @@ class StudyOptionsFragment : Fragment(), ChangeManager.Subscriber, Toolbar.OnMen
      *                        to reflect the latest values.
      * @param result the new DeckStudyData using which UI is to be rebuilt
      */
-    // TODO: Make this a suspend function and move string operations and db-query to a background dispatcher
-    private fun rebuildUi(result: DeckStudyData?, refreshDecklist: Boolean) {
+    private suspend fun rebuildUi(result: DeckStudyData?, refreshDecklist: Boolean) {
         dismissProgressDialog()
         if (result != null) {
             // Don't do anything if the fragment is no longer attached to it's Activity or col has been closed
@@ -532,13 +523,10 @@ class StudyOptionsFragment : Fragment(), ChangeManager.Subscriber, Toolbar.OnMen
                 return
             }
 
-            val col = col
-                ?: throw NullPointerException("StudyOptionsFragment:: Collection is null while rebuilding Ui")
-
             // Reinitialize controls in case changed to filtered deck
             initAllContentViews(studyOptionsView!!)
             // Set the deck name
-            val deck = col.decks.current()
+            val deck = withCol { decks.current() }
             // Main deck name
             val fullName = deck.getString("name")
             val name = Decks.path(fullName)
@@ -586,7 +574,7 @@ class StudyOptionsFragment : Fragment(), ChangeManager.Subscriber, Toolbar.OnMen
             val desc: String = if (isDynamic) {
                 resources.getString(R.string.dyn_deck_desc)
             } else {
-                col.decks.current().description
+                deck.description
             }
             if (desc.isNotEmpty()) {
                 textDeckDescription.text = formatDescription(desc)
@@ -607,24 +595,12 @@ class StudyOptionsFragment : Fragment(), ChangeManager.Subscriber, Toolbar.OnMen
             } else {
                 // if truncated then make a thread to allow full count to load
                 textNewTotal.text = ">1000"
-                if (fullNewCountThread != null) {
-                    // a thread was previously made -- interrupt it
-                    fullNewCountThread!!.interrupt()
-                }
-                fullNewCountThread = Thread {
+                textNewTotal.text = withCol {
                     // TODO: refactor code to not rewrite this query, add to Sched.totalNewForCurrentDeck()
                     val query = "SELECT count(*) FROM cards WHERE did IN " +
-                        Utils.ids2str(col.decks.active()) +
+                        Utils.ids2str(decks.active()) +
                         " AND queue = " + Consts.QUEUE_TYPE_NEW
-                    val fullNewCount = col.db.queryScalar(query)
-                    if (fullNewCount > 0) {
-                        val setNewTotalText = Runnable { textNewTotal.text = fullNewCount.toString() }
-                        if (!Thread.currentThread().isInterrupted) {
-                            textNewTotal.post(setNewTotalText)
-                        }
-                    }
-                }.apply {
-                    start()
+                    db.queryScalar(query).toString()
                 }
             }
 
