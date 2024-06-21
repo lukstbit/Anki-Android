@@ -417,6 +417,7 @@ open class DeckPicker :
         }
         exportingDelegate = ActivityExportingDelegate(this) { getColUnsafe }
         customStudyDialogFactory = CustomStudyDialogFactory({ getColUnsafe }, this).attachToActivity(this)
+        var unusedNameHere: String
 
         // Then set theme and content view
         super.onCreate(savedInstanceState)
