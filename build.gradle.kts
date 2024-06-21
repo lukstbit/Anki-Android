@@ -35,7 +35,8 @@ val localProperties = java.util.Properties()
 if (project.rootProject.file("local.properties").exists()) {
     localProperties.load(project.rootProject.file("local.properties").inputStream())
 }
-val fatalWarnings = !(localProperties["fatal_warnings"] == "false")
+// set fatal_warnings to true only if its actual value is true, false for any other case
+val fatalWarnings = localProperties["fatal_warnings"] == "true"
 
 // Here we extract per-module "best practices" settings to a single top-level evaluation
 subprojects {

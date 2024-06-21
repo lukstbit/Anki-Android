@@ -1,6 +1,12 @@
 #!/bin/sh
 set -e
 
+enableCompilerErrors () {
+    echo "Enabling compiler fatal_warnings during committing..."
+    file="$PWD/local.properties"
+    echo "fatal_warnings=true" >> $file
+}
+
 runKtlint () {
     # Following code was generated automatically by running ./gradlew addKtlintFormatGitPreCommitHook
     # for reference, see https://github.com/JLLeitschuh/ktlint-gradle#additional-helper-tasks
@@ -72,6 +78,7 @@ runPrettier () {
     done
 }
 
+enableCompilerErrors
 runKtlint
 runPrettier || :; # || to avoid cancelling the commit if there is an error with Prettier
 echo "Completed the pre-commit hook."

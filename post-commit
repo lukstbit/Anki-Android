@@ -1,0 +1,21 @@
+#!/bin/sh
+set -e
+
+disableCompilerErrors() {
+    file="$PWD/local.properties"
+    # see if we have the fatal_warnings property declared
+    line=$(grep -n "fatal_warnings=true" $file)
+    # check if it was found and tell the user
+    if [ -z  "$line" ];
+    then
+        echo "Commit done! Note: fatal_warnings property was not found!"
+    else
+        # extract the number from the output(ex: 9:fatal_warnings=true)
+        lineNumber=${line%%:*}
+        # delete line (lineNumber) from local.properties
+        sed -i $lineNumber'd' $file
+        echo "Commit done! fatal_warnings property was found and removed!"
+    fi
+}
+
+disableCompilerErrors || :; # || don't block the commit, it's going to be caught anyway
