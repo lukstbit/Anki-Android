@@ -4,7 +4,4 @@
     <!--Fields-->
     <string name="front_field_name">Front</string>
     <string name="back_field_name">Back</string>
-
-    <!--Note type-->
-    <string name="basic_model_name">Basic</string>
 </resources>

@@ -90,6 +90,8 @@ class NoteTypeTest {
     }
 }
 
+const val BASIC_MODEL_NAME = "Basic"
+
 /**
  * Creates and returns a basic model.
  *

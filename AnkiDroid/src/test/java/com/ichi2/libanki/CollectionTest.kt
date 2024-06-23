@@ -18,6 +18,7 @@ package com.ichi2.libanki
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import anki.notes.NoteFieldsCheckResponse
 import com.ichi2.testutils.JvmTest
+import com.ichi2.utils.BASIC_MODEL_NAME
 import com.ichi2.utils.createBasicModel
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers
@@ -179,7 +180,7 @@ class CollectionTest : JvmTest() {
         val stdModelSize = 6
         assertEquals(col.notetypes.all().size, stdModelSize)
         for (i in 0..99) {
-            col.createBasicModel("Basic")
+            col.createBasicModel(BASIC_MODEL_NAME)
         }
         assertEquals(col.notetypes.all().size, (100 + stdModelSize))
     }
