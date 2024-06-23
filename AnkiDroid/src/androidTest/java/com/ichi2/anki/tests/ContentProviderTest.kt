@@ -24,8 +24,10 @@ import android.content.ContentValues
 import android.database.CursorWindow
 import android.net.Uri
 import com.ichi2.anki.AbstractFlashcardViewer
+import com.ichi2.anki.AnkiDroidApp
 import com.ichi2.anki.CollectionManager
 import com.ichi2.anki.FlashCardsContract
+import com.ichi2.anki.R
 import com.ichi2.anki.provider.pureAnswer
 import com.ichi2.anki.testutil.DatabaseUtils.cursorFillWindow
 import com.ichi2.anki.testutil.GrantStoragePermission.storagePermission
@@ -83,7 +85,7 @@ class ContentProviderTest : InstrumentedTest() {
         createdNotes = ArrayList()
         tearDown = true
         // Add a new basic model that we use for testing purposes (existing models could potentially be corrupted)
-        val model = StdModels.BASIC_MODEL.add(col, BASIC_MODEL_NAME)
+        val model = createBasicModel()
         modelId = model.getLong("id")
         val fields = model.fieldsNames
         // Use the names of the fields as test values for the notes which will be added
@@ -109,6 +111,23 @@ class ContentProviderTest : InstrumentedTest() {
         }
         // Add a note to the default deck as well so that testQueryNextCard() works
         createdNotes.add(setupNewNote(col, modelId, 1, dummyFields, TEST_TAG))
+    }
+
+    private fun createBasicModel(name: String = BASIC_MODEL_NAME): NotetypeJson {
+        val m = col.notetypes.new(name)
+        val frontName = AnkiDroidApp.appResources.getString(R.string.front_field_name)
+        var fm = col.notetypes.newField(frontName)
+        col.notetypes.addFieldInNewModel(m, fm)
+        val backName = AnkiDroidApp.appResources.getString(R.string.back_field_name)
+        fm = col.notetypes.newField(backName)
+        col.notetypes.addFieldInNewModel(m, fm)
+        val cardOneName = CollectionManager.TR.cardTemplatesCard(1)
+        val t = Notetypes.newTemplate(cardOneName)
+        t.put("qfmt", "{{$frontName}}")
+        t.put("afmt", "{{FrontSide}}\n\n<hr id=answer>\n\n{{$backName}}")
+        col.notetypes.addTemplateInNewModel(m, t)
+        col.notetypes.save(m)
+        return m
     }
 
     /**
@@ -246,7 +265,7 @@ class ContentProviderTest : InstrumentedTest() {
         val cr = contentResolver
         var col = col
         // Add a new basic model that we use for testing purposes (existing models could potentially be corrupted)
-        var model: NotetypeJson? = StdModels.BASIC_MODEL.add(col, BASIC_MODEL_NAME)
+        var model: NotetypeJson? = createBasicModel()
         val modelId = model!!.getLong("id")
         // Add the note
         val modelUri = ContentUris.withAppendedId(FlashCardsContract.Model.CONTENT_URI, modelId)
@@ -300,7 +319,7 @@ class ContentProviderTest : InstrumentedTest() {
         // Get required objects for test
         val cr = contentResolver
         var col = col
-        var model: NotetypeJson? = StdModels.BASIC_MODEL.add(col, BASIC_MODEL_NAME)
+        var model: NotetypeJson? = createBasicModel()
         val modelId = model!!.getLong("id")
         val initialFieldsArr = model.getJSONArray("flds")
         val initialFieldCount = initialFieldsArr.length()

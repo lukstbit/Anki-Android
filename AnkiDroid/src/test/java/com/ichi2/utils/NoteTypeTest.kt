@@ -17,9 +17,14 @@
 
 package com.ichi2.utils
 
+import com.ichi2.anki.AnkiDroidApp
+import com.ichi2.anki.CollectionManager
+import com.ichi2.anki.R
 import com.ichi2.anki.utils.ext.getAllClozeTextFields
 import com.ichi2.anki.utils.ext.templates
+import com.ichi2.libanki.Collection
 import com.ichi2.libanki.NotetypeJson
+import com.ichi2.libanki.Notetypes
 import junit.framework.TestCase.assertEquals
 import kotlin.test.Test
 
@@ -83,4 +88,43 @@ class NoteTypeTest {
         val expectedAfmt = "{{cloze:Text}}<br>\n{{Back Extra}}"
         assertEquals(expectedAfmt, notetypeJson.templates[0].afmt)
     }
+}
+
+/**
+ * Creates and returns a basic model.
+ *
+ * @param name name of the new model
+ * @return the new model
+ */
+fun Collection.createBasicModel(name: String): NotetypeJson {
+    val m = notetypes.new(name)
+    val frontName = AnkiDroidApp.appResources.getString(R.string.front_field_name)
+    var fm = notetypes.newField(frontName)
+    notetypes.addFieldInNewModel(m, fm)
+    val backName = AnkiDroidApp.appResources.getString(R.string.back_field_name)
+    fm = notetypes.newField(backName)
+    notetypes.addFieldInNewModel(m, fm)
+    val cardOneName = CollectionManager.TR.cardTemplatesCard(1)
+    val t = Notetypes.newTemplate(cardOneName)
+    t.put("qfmt", "{{$frontName}}")
+    t.put("afmt", "{{FrontSide}}\n\n<hr id=answer>\n\n{{$backName}}")
+    notetypes.addTemplateInNewModel(m, t)
+    notetypes.save(m)
+    return m
+}
+
+/**
+ * Creates a basic typing model by adding on top of a basic model.
+ *
+ * @see createBasicModel
+ */
+fun Collection.createBasicTypingModel(name: String): NotetypeJson {
+    val m = createBasicModel(name)
+    val t = m.getJSONArray("tmpls").getJSONObject(0)
+    val frontName = m.getJSONArray("flds").getJSONObject(0).getString("name")
+    val backName = m.getJSONArray("flds").getJSONObject(1).getString("name")
+    t.put("qfmt", "{{$frontName}}\n\n{{type:$backName}}")
+    t.put("afmt", "{{$frontName}}\n\n<hr id=answer>\n\n{{type:$backName}}")
+    notetypes.save(m)
+    return m
 }

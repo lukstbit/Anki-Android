@@ -31,11 +31,11 @@ import com.ichi2.anki.reviewer.AutomaticAnswer
 import com.ichi2.anki.reviewer.AutomaticAnswerAction
 import com.ichi2.anki.reviewer.AutomaticAnswerSettings
 import com.ichi2.anki.servicelayer.LanguageHintService
-import com.ichi2.libanki.StdModels
 import com.ichi2.libanki.undoableOp
 import com.ichi2.testutils.AnkiAssert.assertDoesNotThrow
 import com.ichi2.testutils.Flaky
 import com.ichi2.testutils.OS
+import com.ichi2.utils.createBasicTypingModel
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.*
 import org.junit.Assert.*
@@ -237,8 +237,8 @@ class AbstractFlashcardViewerTest : RobolectricTest() {
     @Test
     @Flaky(OS.ALL, "executeCommand(FLIP_OR_ANSWER_EASE4) cannot be awaited")
     fun typedLanguageIsSet() = runTest {
-        val withLanguage = StdModels.BASIC_TYPING_MODEL.add(col, "a")
-        val normal = StdModels.BASIC_TYPING_MODEL.add(col, "b")
+        val withLanguage = col.createBasicTypingModel("a")
+        val normal = col.createBasicTypingModel("b")
         val typedField = 1 // BACK
 
         LanguageHintService.setLanguageHintForField(col.notetypes, withLanguage, typedField, Locale("ja"))
