@@ -17,7 +17,7 @@
 package com.ichi2.compat
 
 import com.ichi2.anki.TestUtils
-import com.ichi2.utils.FileOperation.Companion.getFileResource
+import com.ichi2.testutils.common.FileOperation.Companion.getFileResource
 import org.junit.Assert
 import org.junit.Test
 import java.io.*

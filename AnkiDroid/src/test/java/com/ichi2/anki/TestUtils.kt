@@ -16,8 +16,8 @@
 
 package com.ichi2.anki
 
-import com.ichi2.utils.FileOperation.Companion.getFileContentsBytes
 import java.io.File
+import java.io.RandomAccessFile
 import java.lang.Exception
 import java.lang.StringBuilder
 import java.security.MessageDigest
@@ -28,7 +28,10 @@ open class TestUtils {
         @Throws(Exception::class)
         fun getMD5(filename: String): String {
             val md = MessageDigest.getInstance("MD5")
-            md.update(getFileContentsBytes(File(filename)))
+            val file = RandomAccessFile(File(filename), "r")
+            val contentBytes = ByteArray(file.length().toInt())
+            file.readFully(contentBytes)
+            md.update(contentBytes)
             val hex = StringBuilder()
             for (b in md.digest()) {
                 hex.append(String.format("%02x", b))

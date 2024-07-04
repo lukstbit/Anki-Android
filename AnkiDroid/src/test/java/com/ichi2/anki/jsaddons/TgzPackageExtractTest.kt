@@ -20,7 +20,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.CollectionHelper
 import com.ichi2.anki.RobolectricTest
 import com.ichi2.testutils.ShadowStatFs
-import com.ichi2.utils.FileOperation.Companion.getFileResource
+import com.ichi2.testutils.common.FileOperation.Companion.getFileResource
 import junit.framework.TestCase.assertTrue
 import org.apache.commons.compress.archivers.ArchiveException
 import org.hamcrest.MatcherAssert.assertThat

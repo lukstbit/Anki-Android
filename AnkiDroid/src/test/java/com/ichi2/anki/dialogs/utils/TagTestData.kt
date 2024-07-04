@@ -16,7 +16,7 @@
 
 package com.ichi2.anki.dialogs.utils
 
-import com.ichi2.utils.FileOperation.Companion.getFileResource
+import com.ichi2.testutils.common.FileOperation.Companion.getFileResource
 import java.io.File
 
 // this has to be a file, as it can't be a Kotlin list
