@@ -16,7 +16,6 @@
 
 package com.ichi2.compat
 
-import com.ichi2.testutils.*
 import com.ichi2.testutils.AnkiAssert.assertDoesNotThrow
 import com.ichi2.testutils.common.createTransientDirectory
 import com.ichi2.testutils.common.createTransientFile
@@ -27,7 +26,9 @@ import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 import java.io.File
 import java.io.FileNotFoundException
+import java.io.FileOutputStream
 import java.io.IOException
+import java.io.OutputStreamWriter
 import kotlin.test.assertFailsWith
 
 /** Tests for [Compat.deleteFile] */
@@ -70,7 +71,13 @@ class CompatDeleteFileTest(
     @Test
     fun delete_fails_if_not_empty_directory() {
         // Note: Exception is a DirectoryNotEmptyException in V26
-        val dir = createTransientDirectory().withTempFile("foo.txt")
+        val dir = createTransientDirectory()
+        val file = File(dir, "foo.txt")
+        OutputStreamWriter(FileOutputStream(file), "UTF-8").use { writer ->
+            writer.write("default content")
+            writer.flush()
+        }
+        file.deleteOnExit()
         assertFailsWith<IOException> { deleteFile(dir) }
     }
 
