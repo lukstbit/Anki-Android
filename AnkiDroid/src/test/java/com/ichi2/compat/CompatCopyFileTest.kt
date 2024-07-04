@@ -16,12 +16,13 @@
  ****************************************************************************************/
 package com.ichi2.compat
 
-import com.ichi2.anki.TestUtils
 import com.ichi2.testutils.common.FileOperation.Companion.getFileResource
 import org.junit.Assert
 import org.junit.Test
 import java.io.*
+import java.lang.StringBuilder
 import java.net.URL
+import java.security.MessageDigest
 
 class CompatCopyFileTest : Test21And26() {
     @Test
@@ -33,7 +34,7 @@ class CompatCopyFileTest : Test21And26() {
         FileOutputStream(copy.canonicalPath).use { outputStream ->
             CompatHelper.compat.copyFile(resourcePath, outputStream)
         }
-        Assert.assertEquals(TestUtils.getMD5(resourcePath), TestUtils.getMD5(copy.canonicalPath))
+        Assert.assertEquals(getMD5(resourcePath), getMD5(copy.canonicalPath))
     }
 
     @Test
@@ -43,7 +44,7 @@ class CompatCopyFileTest : Test21And26() {
         val copy = File.createTempFile("testCopyStreamToFile", ".zip")
         copy.deleteOnExit()
         CompatHelper.compat.copyFile(resourcePath, copy.canonicalPath)
-        Assert.assertEquals(TestUtils.getMD5(resourcePath), TestUtils.getMD5(copy.canonicalPath))
+        Assert.assertEquals(getMD5(resourcePath), getMD5(copy.canonicalPath))
     }
 
     @Test
@@ -86,5 +87,22 @@ class CompatCopyFileTest : Test21And26() {
         } catch (e: Exception) {
             // this is expected
         }
+    }
+
+    /**
+     * Get the MD5 checksum (in hex) for the given filename
+     */
+    @Throws(java.lang.Exception::class)
+    private fun getMD5(filename: String): String {
+        val md = MessageDigest.getInstance("MD5")
+        val file = RandomAccessFile(File(filename), "r")
+        val contentBytes = ByteArray(file.length().toInt())
+        file.readFully(contentBytes)
+        md.update(contentBytes)
+        val hex = StringBuilder()
+        for (b in md.digest()) {
+            hex.append(String.format("%02x", b))
+        }
+        return hex.toString()
     }
 }
