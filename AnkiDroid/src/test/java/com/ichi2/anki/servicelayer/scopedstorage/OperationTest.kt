@@ -21,7 +21,7 @@ import com.ichi2.anki.servicelayer.scopedstorage.migrateuserdata.MigrateUserData
 import com.ichi2.anki.servicelayer.scopedstorage.migrateuserdata.MigrateUserData.Operation
 import com.ichi2.compat.CompatHelper
 import com.ichi2.testutils.TestException
-import com.ichi2.testutils.createTransientDirectory
+import com.ichi2.testutils.common.createTransientDirectory
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doAnswer

@@ -18,7 +18,7 @@ package com.ichi2.compat
 
 import android.annotation.SuppressLint
 import com.ichi2.anki.model.Directory
-import com.ichi2.testutils.createTransientDirectory
+import com.ichi2.testutils.common.createTransientDirectory
 import io.mockk.*
 import org.junit.AfterClass
 import org.junit.Before

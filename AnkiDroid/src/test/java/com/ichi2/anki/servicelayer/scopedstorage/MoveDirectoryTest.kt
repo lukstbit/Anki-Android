@@ -22,6 +22,7 @@ import com.ichi2.anki.servicelayer.scopedstorage.migrateuserdata.MigrateUserData
 import com.ichi2.anki.servicelayer.scopedstorage.migrateuserdata.MoveDirectory
 import com.ichi2.compat.Test21And26
 import com.ichi2.testutils.*
+import com.ichi2.testutils.common.createTransientDirectory
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.CoreMatchers.instanceOf
 import org.hamcrest.MatcherAssert.assertThat

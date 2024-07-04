@@ -27,7 +27,7 @@ import com.ichi2.anki.servicelayer.scopedstorage.setLegacyStorage
 import com.ichi2.libanki.Collection
 import com.ichi2.testutils.ShadowStatFs
 import com.ichi2.testutils.assertFalse
-import com.ichi2.testutils.createTransientDirectory
+import com.ichi2.testutils.common.createTransientDirectory
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.equalTo
 import org.junit.Test

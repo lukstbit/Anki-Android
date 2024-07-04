@@ -17,7 +17,7 @@
 package com.ichi2.compat
 
 import com.ichi2.testutils.AnkiAssert.assertDoesNotThrow
-import com.ichi2.testutils.createTransientDirectory
+import com.ichi2.testutils.common.createTransientDirectory
 import org.hamcrest.CoreMatchers.not
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.io.FileMatchers.anExistingDirectory

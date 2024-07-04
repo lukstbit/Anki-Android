@@ -26,6 +26,7 @@ import com.ichi2.anki.servicelayer.scopedstorage.migrateuserdata.MigrateUserData
 import com.ichi2.anki.servicelayer.scopedstorage.migrateuserdata.MigrationProgressListener
 import com.ichi2.anki.utils.AggregateException
 import com.ichi2.testutils.*
+import com.ichi2.testutils.common.createTransientDirectory
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.*
 import org.hamcrest.io.FileMatchers.anExistingDirectory

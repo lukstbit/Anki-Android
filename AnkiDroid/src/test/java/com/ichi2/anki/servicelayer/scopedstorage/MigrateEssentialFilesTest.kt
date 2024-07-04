@@ -28,7 +28,7 @@ import com.ichi2.anki.servicelayer.ScopedStorageService.prepareAndValidateSource
 import com.ichi2.anki.servicelayer.scopedstorage.MigrateEssentialFiles.UserActionRequiredException.MissingEssentialFileException
 import com.ichi2.compat.CompatHelper
 import com.ichi2.testutils.CollectionDBCorruption
-import com.ichi2.testutils.createTransientDirectory
+import com.ichi2.testutils.common.createTransientDirectory
 import net.ankiweb.rsdroid.BackendException
 import org.hamcrest.CoreMatchers.*
 import org.hamcrest.MatcherAssert.assertThat

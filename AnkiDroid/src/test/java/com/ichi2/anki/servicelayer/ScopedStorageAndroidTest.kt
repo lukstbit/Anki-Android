@@ -20,7 +20,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.CollectionHelper
 import com.ichi2.testutils.EmptyApplication
-import com.ichi2.testutils.createTransientDirectory
+import com.ichi2.testutils.common.createTransientDirectory
 import io.mockk.every
 import io.mockk.mockkObject
 import org.hamcrest.MatcherAssert.assertThat

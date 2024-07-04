@@ -21,6 +21,7 @@ import com.ichi2.anki.model.DiskFile
 import com.ichi2.anki.servicelayer.scopedstorage.migrateuserdata.MigrateUserData.*
 import com.ichi2.anki.servicelayer.scopedstorage.migrateuserdata.MigrateUserData.MissingDirectoryException.MissingFile
 import com.ichi2.testutils.*
+import com.ichi2.testutils.common.createTransientDirectory
 import org.hamcrest.CoreMatchers.*
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers

@@ -21,7 +21,7 @@ import com.ichi2.anki.servicelayer.ScopedStorageService
 import com.ichi2.anki.servicelayer.scopedstorage.migrateuserdata.MigrateUserData.Companion.createInstance
 import com.ichi2.anki.servicelayer.scopedstorage.migrateuserdata.MigrateUserData.MissingDirectoryException
 import com.ichi2.anki.servicelayer.scopedstorage.migrateuserdata.MigrateUserDataJvmTest.SourceType.*
-import com.ichi2.testutils.createTransientDirectory
+import com.ichi2.testutils.common.createTransientDirectory
 import org.hamcrest.CoreMatchers.*
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.BeforeClass

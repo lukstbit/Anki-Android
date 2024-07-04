@@ -16,8 +16,8 @@
 
 package com.ichi2.anki.model
 
-import com.ichi2.testutils.createTransientDirectory
-import com.ichi2.testutils.createTransientFile
+import com.ichi2.testutils.common.createTransientDirectory
+import com.ichi2.testutils.common.createTransientFile
 import org.hamcrest.CoreMatchers.*
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test

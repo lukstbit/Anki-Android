@@ -50,7 +50,7 @@ import com.ichi2.libanki.Note
 import com.ichi2.testutils.IntentAssert
 import com.ichi2.testutils.JvmTest
 import com.ichi2.testutils.TestClass
-import com.ichi2.testutils.createTransientDirectory
+import com.ichi2.testutils.common.createTransientDirectory
 import com.ichi2.testutils.ensureNoOpsExecuted
 import com.ichi2.testutils.ensureOpsExecuted
 import com.ichi2.testutils.mockIt
