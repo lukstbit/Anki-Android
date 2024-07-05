@@ -40,7 +40,6 @@ import com.ichi2.libanki.Note
 import com.ichi2.libanki.NoteTypeId
 import com.ichi2.libanki.exception.EmptyMediaException
 import com.ichi2.libanki.undoableOp
-import com.ichi2.utils.CollectionUtils.average
 import org.json.JSONException
 import org.json.JSONObject
 import timber.log.Timber
@@ -233,6 +232,13 @@ object NoteService {
         val nonNewOrLearningCards = note.cards(col).filter { it.type != Consts.CARD_TYPE_NEW && it.type != Consts.CARD_TYPE_LRN }
 
         return nonNewOrLearningCards.average { it.ivl }?.toInt()
+    }
+
+    /**
+     * Return the average of the elements in the iterable or null if the iterable is empty.
+     */
+    private fun <T> Iterable<T>.average(f: (T) -> Int): Double? {
+        return this.map(f).average().let { if (it.isNaN()) null else it }
     }
 
     interface NoteField {
