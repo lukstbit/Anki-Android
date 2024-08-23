@@ -132,6 +132,10 @@ class FieldEditLine : FrameLayout {
         }
     }
 
+    fun setHint(hint: String) {
+        editText.hint = hint
+    }
+
     fun setContent(content: String?, replaceNewline: Boolean) {
         editText.setContent(content, replaceNewline)
     }

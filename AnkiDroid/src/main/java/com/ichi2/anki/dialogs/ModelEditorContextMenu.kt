@@ -55,7 +55,8 @@ open class ModelEditorContextMenu : AnalyticsDialogFragment() {
         /**
          * This action will be possible only when the api level of the platform is at least at [Build.VERSION_CODES.N].
          */
-        AddLanguageHint(5, R.string.model_field_editor_language_hint)
+        AddLanguageHint(5, R.string.model_field_editor_language_hint),
+        AddDescription(6, R.string.model_field_editor_add_description)
     }
 
     companion object {

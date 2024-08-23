@@ -42,8 +42,10 @@ import com.ichi2.anki.snackbar.showSnackbar
 import com.ichi2.libanki.Collection
 import com.ichi2.libanki.NotetypeJson
 import com.ichi2.libanki.exception.ConfirmModSchemaException
+import com.ichi2.libanki.utils.set
 import com.ichi2.ui.FixedEditText
 import com.ichi2.utils.customView
+import com.ichi2.utils.input
 import com.ichi2.utils.negativeButton
 import com.ichi2.utils.positiveButton
 import com.ichi2.utils.show
@@ -477,6 +479,7 @@ class ModelFieldEditor : AnkiActivity(), LocaleSelectionDialogHandler {
                     localeHintDialog()
                 }
             }
+            ModelEditorContextMenuAction.AddDescription -> addDescriptionDialog()
         }
     }
 
@@ -521,5 +524,24 @@ class ModelFieldEditor : AnkiActivity(), LocaleSelectionDialogHandler {
     fun renameField(fieldNameInput: EditText?) {
         this.fieldNameInput = fieldNameInput
         renameField()
+    }
+
+    private fun addDescriptionDialog() {
+        val field = noteFields.getJSONObject(currentPos)
+        Timber.d("GGGGGGGGGGGGGGGGGGG: ${field.toString(4)}")
+        val dialogView = layoutInflater.inflate(R.layout.dialog_generic_text_input, null)
+        AlertDialog.Builder(this).show {
+            title(R.string.model_field_editor_add_description)
+            negativeButton(R.string.dialog_cancel)
+            positiveButton(R.string.dialog_ok)
+            customView(dialogView)
+        }.input(
+            hint = "Text to show inside the field when it's empty",
+            prefill = field.getString("description")
+        ) { dialog, text ->
+            field["description"] = text.toString()
+            getColUnsafe.notetypes.save(notetype)
+            dialog.dismiss()
+        }
     }
 }
