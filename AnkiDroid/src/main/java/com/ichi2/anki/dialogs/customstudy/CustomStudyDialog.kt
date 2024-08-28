@@ -374,7 +374,8 @@ class CustomStudyDialog(private val collection: Collection, private val customSt
                     add(STUDY_PREVIEW)
                     add(STUDY_TAGS)
                 }
-                if (collection.sched.totalNewForCurrentDeck() == 0) {
+                val studyDefaults = collection.backend.customStudyDefaults(collection.decks.selected())
+                if (studyDefaults.availableNew + studyDefaults.availableNewInChildren == 0) {
                     // If no new cards we wont show CUSTOM_STUDY_NEW
                     dialogOptions.remove(STUDY_NEW)
                 }
@@ -405,9 +406,10 @@ class CustomStudyDialog(private val collection: Collection, private val customSt
     private val text1: String
         get() {
             val res = resources
+            val studyDefaults = collection.backend.customStudyDefaults(collection.decks.selected())
             return when (ContextMenuOption.fromInt(requireArguments().getInt("id"))) {
-                STUDY_NEW -> res.getString(R.string.custom_study_new_total_new, collection.sched.totalNewForCurrentDeck())
-                STUDY_REV -> res.getString(R.string.custom_study_rev_total_rev, collection.sched.totalRevForCurrentDeck())
+                STUDY_NEW -> res.getString(R.string.custom_study_new_total_new, studyDefaults.availableNew + studyDefaults.availableNewInChildren)
+                STUDY_REV -> res.getString(R.string.custom_study_rev_total_rev, studyDefaults.availableReview + studyDefaults.availableReviewInChildren)
                 else -> ""
             }
         }

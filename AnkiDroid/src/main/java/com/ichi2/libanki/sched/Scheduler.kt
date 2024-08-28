@@ -496,26 +496,6 @@ open class Scheduler(val col: Collection) {
         return col.backend.customStudyDefaults(deckId)
     }
 
-    /**
-     * @return Number of new card in current deck and its descendants. Capped at [REPORT_LIMIT]
-     */
-    fun totalNewForCurrentDeck(): Int {
-        return col.db.queryScalar(
-            "SELECT count() FROM cards WHERE id IN (SELECT id FROM cards WHERE did IN " + deckLimit() + " AND queue = " + Consts.QUEUE_TYPE_NEW + " LIMIT ?)",
-            REPORT_LIMIT
-        )
-    }
-
-    /** @return Number of review cards in current deck.
-     */
-    fun totalRevForCurrentDeck(): Int {
-        return col.db.queryScalar(
-            "SELECT count() FROM cards WHERE id IN (SELECT id FROM cards WHERE did IN " + deckLimit() + "  AND queue = " + Consts.QUEUE_TYPE_REV + " AND due <= ? LIMIT ?)",
-            today,
-            REPORT_LIMIT
-        )
-    }
-
     fun studiedToday(): String {
         return col.backend.studiedToday()
     }
