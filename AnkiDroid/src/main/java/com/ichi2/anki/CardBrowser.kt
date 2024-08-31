@@ -66,6 +66,7 @@ import com.ichi2.anki.browser.CardBrowserColumn.Companion.COLUMN2_KEYS
 import com.ichi2.anki.browser.CardBrowserLaunchOptions
 import com.ichi2.anki.browser.CardBrowserViewModel
 import com.ichi2.anki.browser.CardBrowserViewModel.SearchState
+import com.ichi2.anki.browser.FindAndReplaceDialogFragment
 import com.ichi2.anki.browser.PreviewerIdsFile
 import com.ichi2.anki.browser.SaveSearchResult
 import com.ichi2.anki.browser.SharedPreferencesLastDeckIdRepository
@@ -1011,6 +1012,12 @@ open class CardBrowser :
         actionBarMenu?.findItem(R.id.action_reschedule_cards)?.title =
             TR.actionsSetDueDate().toSentenceCase(this, R.string.sentence_set_due_date)
 
+        if (sharedPrefs().getBoolean(getString(R.string.pref_browser_find_replace), false)) {
+            menu.findItem(R.id.action_find_replace)?.apply {
+                isVisible = true
+                title = TR.browsingFindAndReplace()
+            }
+        }
         previewItem = menu.findItem(R.id.action_preview)
         onSelectionChanged()
         updatePreviewMenuItem()
@@ -1270,6 +1277,9 @@ open class CardBrowser :
             R.id.action_create_filtered_deck -> {
                 showCreateFilteredDeckDialog()
             }
+            R.id.action_find_replace -> {
+                showFindAndReplaceDialog()
+            }
         }
         return super.onOptionsItemSelected(item)
     }
@@ -1300,6 +1310,16 @@ open class CardBrowser :
      */
     private fun searchForMarkedNotes() {
         launchCatchingTask { viewModel.searchForMarkedNotes() }
+    }
+
+    private fun showFindAndReplaceDialog() {
+        val deckId = getColUnsafe.decks.selected()
+        if (deckId == ALL_DECKS_ID) {
+            showSnackbar(R.string.browser_find_replace_all_decks)
+            return
+        }
+        FindAndReplaceDialogFragment.newInstance(deckId = deckId)
+            .show(supportFragmentManager, FindAndReplaceDialogFragment.TAG)
     }
 
     private fun changeDisplayOrder() {

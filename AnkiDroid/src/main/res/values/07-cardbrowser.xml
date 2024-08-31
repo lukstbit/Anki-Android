@@ -90,4 +90,6 @@
         <item quantity="one">%d card deleted</item>
         <item quantity="other">%d cards deleted</item>
     </plurals>
+
+    <string name="browser_find_replace_all_decks">All decks selected, please select a single deck for find and replace</string>
 </resources>

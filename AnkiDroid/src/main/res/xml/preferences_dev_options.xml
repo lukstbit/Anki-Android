@@ -85,6 +85,9 @@
             android:key="@string/new_reviewer_options_key"
             android:dependency="@string/new_reviewer_pref_key"
             android:fragment="com.ichi2.anki.preferences.ReviewerOptionsFragment"/>
-
+        <SwitchPreferenceCompat
+            android:title="Browser find and replace"
+            android:key="@string/pref_browser_find_replace"
+            android:defaultValue="false"/>
     </com.ichi2.anki.preferences.ExtendedPreferenceCategory>
 </PreferenceScreen>

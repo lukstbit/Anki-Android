@@ -95,5 +95,7 @@
         android:title="@string/undo"
         ankidroid:actionProviderClass="com.ichi2.ui.RtlCompliantActionProvider"
         android:icon="@drawable/ic_undo_white"/>
-
+    <item
+        android:id="@+id/action_find_replace"
+        android:visible="false"/>
 </menu>
