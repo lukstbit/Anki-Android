@@ -107,7 +107,7 @@ class CustomStudyDialogTest : RobolectricTest() {
     fun increaseNewCardLimitRegressionTest() {
         // #8338 - Regression Test
         val args = CustomStudyDialog(mock(), ParametersUtils.whatever())
-            .withArguments(CustomStudyDialog.ContextMenuConfiguration.STANDARD, 1)
+            .withArguments(null, 1)
             .arguments
 
         // we are using mock collection for the CustomStudyDialog but still other parts of the code

@@ -235,7 +235,7 @@ class StudyOptionsFragment : Fragment(), ChangeManager.Subscriber, Toolbar.OnMen
     private fun showCustomStudyContextMenu() {
         val ankiActivity = requireActivity() as AnkiActivity
         val contextMenu = instantiate(ankiActivity, CustomStudyDialog::class.java)
-        contextMenu.withArguments(CustomStudyDialog.ContextMenuConfiguration.STANDARD, col!!.decks.selected())
+        contextMenu.withArguments(null, col!!.decks.selected())
         ankiActivity.showDialogFragment(contextMenu)
     }
 
