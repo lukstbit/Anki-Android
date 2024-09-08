@@ -72,6 +72,7 @@ runPrettier () {
     done
 }
 
-runKtlint
+# TODO replace runKtlint task with task from ktfmt
+# runKtlint
 runPrettier || :; # || to avoid cancelling the commit if there is an error with Prettier
 echo "Completed the pre-commit hook."

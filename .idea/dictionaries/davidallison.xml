@@ -62,6 +62,7 @@
       <w>ifnull</w>
       <w>janky</w>
       <w>keybind</w>
+      <w>ktfmt</w>
       <w>ktlint</w>
       <w>lateinit</w>
       <w>legendable</w>

@@ -1,5 +1,6 @@
 import com.android.build.api.dsl.CommonExtension
 import com.android.build.api.extension.impl.AndroidComponentsExtensionImpl
+import com.ncorti.ktfmt.gradle.KtfmtExtension
 import com.slack.keeper.optInToKeeper
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.internal.jvm.Jvm
@@ -15,7 +16,7 @@ plugins {
     alias(libs.plugins.kotlin.parcelize) apply false
     alias(libs.plugins.kotlin.jvm) apply false
     alias(libs.plugins.kotlin.serialization) apply false
-    alias(libs.plugins.ktlint) apply false
+    alias(libs.plugins.ktfmt) apply false
     alias(libs.plugins.dokka) apply false
     alias(libs.plugins.keeper) apply false
 }
@@ -28,7 +29,15 @@ val fatalWarnings = !(localProperties["fatal_warnings"] == "false")
 
 // Here we extract per-module "best practices" settings to a single top-level evaluation
 subprojects {
-    apply(plugin = "org.jlleitschuh.gradle.ktlint")
+    apply(plugin = "com.ncorti.ktfmt.gradle")
+
+    extensions.configure(KtfmtExtension::class.java) {
+        // KotlinLang style(4 space indentation) from: kotlinlang.org/docs/coding-conventions.html
+        kotlinLangStyle()
+        removeUnusedImports.set(true)
+        // automatically add/remove trailing commas
+        manageTrailingCommas.set(true)
+    }
 
     afterEvaluate {
         if (hasProperty("android")) {
