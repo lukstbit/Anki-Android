@@ -16,25 +16,18 @@
 
 package com.ichi2.anki
 
-import android.content.SharedPreferences
 import android.text.format.DateFormat
 import androidx.annotation.VisibleForTesting
-import androidx.core.content.edit
 import anki.config.Preferences.BackupLimits
 import anki.config.copy
-import com.ichi2.anki.preferences.sharedPrefs
-import com.ichi2.compat.CompatHelper
 import com.ichi2.libanki.Collection
 import com.ichi2.libanki.Utils
 import com.ichi2.libanki.utils.Time
 import com.ichi2.libanki.utils.Time.Companion.utcOffset
 import com.ichi2.libanki.utils.TimeManager
 import com.ichi2.utils.FileUtil.getFreeDiskSpace
-import okio.use
 import timber.log.Timber
-import java.io.BufferedOutputStream
 import java.io.File
-import java.io.FileOutputStream
 import java.io.IOException
 import java.text.ParseException
 import java.text.SimpleDateFormat
@@ -44,90 +37,8 @@ import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import java.util.UnknownFormatConversionException
-import java.util.zip.ZipEntry
-import java.util.zip.ZipOutputStream
 
 open class BackupManager {
-    /**
-     * Attempts to create a backup in a background thread. Returns `true` if the process is started.
-     *
-     * Returns false:
-     * * If backups are disabled
-     * * If the frequency between backups set by the user in preferences wasn't respected(see preferences key "minutes_between_automatic_backups")
-     * * If the filename creation failed
-     * * If the backup already exists
-     * * If the user has insufficient space
-     * * If the collection is too small to be valid
-     *
-     * @param colPath The path of the collection file
-     *
-     * @return Whether a thread was started to create a backup
-     */
-    @Suppress("PMD.NPathComplexity")
-    fun performBackupInBackground(colPath: String, time: Time): Boolean {
-        val prefs = AnkiDroidApp.instance.baseContext.sharedPrefs()
-        if (hasDisabledBackups(prefs)) {
-            Timber.w("backups are disabled")
-            return false
-        }
-        val colFile = File(colPath)
-        val colBackups = getBackups(colFile)
-        if (isBackupUnnecessary(colFile, colBackups)) {
-            Timber.d("performBackup: No backup necessary due to no collection changes")
-            return false
-        }
-        // the frequency(in minutes) allowed for backups(default is 30 minutes)
-        val frequency = prefs.getInt("minutes_between_automatic_backups", 30)
-        // Abort backup if one was already made less than the allowed frequency
-        val lastBackupDate = getLastBackupDate(colBackups)
-        if (lastBackupDate != null && lastBackupDate.time + frequency * 60_000L > time.intTimeMS()) {
-            Timber.d("performBackup: No backup created. Last backup younger than the frequency allowed from preferences(currently set to $frequency minutes)")
-            return false
-        }
-        val backupFilename = getNameForNewBackup(time) ?: return false
-
-        // Abort backup if destination already exists (extremely unlikely)
-        val backupFile = getBackupFile(colFile, backupFilename)
-        if (backupFile.exists()) {
-            Timber.d("performBackup: No new backup created. File already exists")
-            return false
-        }
-
-        // Abort backup if not enough free space
-        if (!hasFreeDiscSpace(colFile)) {
-            Timber.e("performBackup: Not enough space on sd card to backup.")
-            prefs.edit { putBoolean("noSpaceLeft", true) }
-            return false
-        }
-
-        // Don't bother trying to do backup if the collection is too small to be valid
-        if (collectionIsTooSmallToBeValid(colFile)) {
-            Timber.d("performBackup: No backup created as the collection is too small to be valid")
-            return false
-        }
-
-        // TODO: Probably not a good idea to do the backup while the collection is open
-        if (CollectionManager.isOpenUnsafe()) {
-            Timber.w("Collection is already open during backup... we probably shouldn't be doing this")
-        }
-
-        // Backup collection as Anki package in new thread
-        performBackupInNewThread(colFile, backupFile)
-        return true
-    }
-
-    fun isBackupUnnecessary(colFile: File, colBackups: Array<File>): Boolean {
-        val len = colBackups.size
-
-        // If have no backups, then a backup is necessary
-        return if (len <= 0) {
-            false
-        } else {
-            colBackups[len - 1].lastModified() == colFile.lastModified()
-        }
-
-        // no collection changes means we don't need a backup
-    }
 
     /**
      * @return last date in parsable file names or null if all names can't be parsed
@@ -139,75 +50,8 @@ open class BackupManager {
         }
     }
 
-    fun getBackupFile(colFile: File, backupFilename: String): File {
-        return File(getBackupDirectory(colFile.parentFile!!), backupFilename)
-    }
-
-    fun performBackupInNewThread(colFile: File, backupFile: File) {
-        Timber.i("Launching new thread to backup %s to %s", colFile.absolutePath, backupFile.path)
-        val thread: Thread = object : Thread() {
-            override fun run() {
-                performBackup(colFile, backupFile)
-            }
-        }
-        thread.start()
-    }
-
-    private fun performBackup(colFile: File, backupFile: File): Boolean {
-        val colPath = colFile.absolutePath
-        // Save collection file as zip archive
-        return try {
-            ZipOutputStream(BufferedOutputStream(FileOutputStream(backupFile))).use { zos ->
-                val ze = ZipEntry(CollectionHelper.COLLECTION_FILENAME)
-                zos.putNextEntry(ze)
-                CompatHelper.compat.copyFile(colPath, zos)
-            }
-            // Delete old backup files if needed
-            val prefs = AnkiDroidApp.instance.baseContext.sharedPrefs()
-            val backupLimits = BackupLimits.newBuilder()
-                .setDaily(prefs.getInt("daily_backups_to_keep", 8))
-                .setWeekly(prefs.getInt("weekly_backups_to_keep", 8))
-                .setMonthly(prefs.getInt("monthly_backups_to_keep", 8))
-                .build()
-            deleteColBackups(colPath, backupLimits)
-            // set timestamp of file in order to avoid creating a new backup unless its changed
-            if (!backupFile.setLastModified(colFile.lastModified())) {
-                Timber.w(
-                    "performBackupInBackground() setLastModified() failed on file %s",
-                    backupFile.name
-                )
-                return false
-            }
-            Timber.i("Backup created successfully")
-            true
-        } catch (e: IOException) {
-            Timber.w(e)
-            false
-        }
-    }
-
-    fun collectionIsTooSmallToBeValid(colFile: File): Boolean {
-        return (
-            colFile.length()
-                < MIN_BACKUP_COL_SIZE
-            )
-    }
-
-    fun hasFreeDiscSpace(colFile: File): Boolean {
-        return getFreeDiscSpace(colFile) >= getRequiredFreeSpace(colFile)
-    }
-
-    @VisibleForTesting
-    fun hasDisabledBackups(prefs: SharedPreferences): Boolean {
-        return prefs.getInt("backupMax", 8) == 0
-    }
-
     companion object {
-        /**
-         * Number of MB of
-         */
         private const val MIN_FREE_SPACE = 10
-        private const val MIN_BACKUP_COL_SIZE = 10000 // threshold in bytes to backup a col file
         private const val BACKUP_SUFFIX = "backup"
         const val BROKEN_COLLECTIONS_SUFFIX = "broken"
         private val backupNameRegex: Regex by lazy {
@@ -235,15 +79,6 @@ open class BackupManager {
                 Timber.w("getBrokenDirectory() mkdirs on %s failed", ankidroidDir)
             }
             return directory
-        }
-
-        /**
-         * @param colFile The current collection file to backup
-         * @return the amount of free space required for a backup.
-         */
-        fun getRequiredFreeSpace(colFile: File): Long {
-            // We add a minimum amount of free space to ensure against
-            return colFile.length() + MIN_FREE_SPACE * 1024 * 1024
         }
 
         fun enoughDiscSpace(path: String?): Boolean {
