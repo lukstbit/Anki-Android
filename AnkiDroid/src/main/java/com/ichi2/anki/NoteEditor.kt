@@ -383,6 +383,11 @@ class NoteEditor : AnkiFragment(R.layout.note_editor), DeckSelectionListener, Su
             return
         }
         deckId = deck.deckId
+        launchCatchingTask {
+            withCol {
+                backend.setCurrentDeck(deckId)
+            }
+        }
         // this is called because DeckSpinnerSelection.onDeckAdded doesn't update the list
         deckSpinnerSelection!!.initializeNoteEditorDeckSpinner(getColUnsafe)
         launchCatchingTask {
