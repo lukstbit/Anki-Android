@@ -52,10 +52,11 @@ class AddonData(
     val author: Map<String, String>? = null,
     val license: String? = null,
     val homepage: String? = null,
-    val dist: DistInfo? = null
+    val dist: Map<String, String>? = null
 )
 
 @Serializable
+// Note: used in the original code as a type for the AddonData.dist property
 data class DistInfo(val tarball: String)
 
 /**
@@ -151,7 +152,9 @@ fun getAddonModelFromAddonData(addonData: AddonData): Pair<AddonModel?, List<Str
         author = addonData.author!!,
         license = addonData.license!!,
         homepage = addonData.homepage!!,
-        dist = addonData.dist!!
+        // package.json in tgz file does not contains dist but it is available when the file loaded
+        // from network, the dist contains .tgz url which will be used to download the file
+        dist = addonData.dist ?: emptyMap()
     )
 
     return Pair(addonModel, immutableList)

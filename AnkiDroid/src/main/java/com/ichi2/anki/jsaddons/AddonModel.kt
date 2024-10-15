@@ -17,8 +17,11 @@
 package com.ichi2.anki.jsaddons
 
 import android.content.SharedPreferences
+import android.os.Parcelable
 import androidx.core.content.edit
+import kotlinx.parcelize.Parcelize
 
+@Parcelize
 data class AddonModel(
     val name: String,
     val addonTitle: String,
@@ -32,8 +35,8 @@ data class AddonModel(
     val author: Map<String, String>,
     val license: String,
     val homepage: String,
-    val dist: DistInfo
-) {
+    val dist: Map<String, String>
+) : Parcelable {
     /**
      * Update preferences for addons with boolean remove, the preferences will be used to store the information about
      * enabled and disabled addon. So, that other method will return content of script to reviewer or note editor
