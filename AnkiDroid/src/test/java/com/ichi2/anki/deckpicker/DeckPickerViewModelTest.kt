@@ -18,17 +18,19 @@ package com.ichi2.anki.deckpicker
 
 import androidx.annotation.CheckResult
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import anki.card_rendering.EmptyCardsReport
+import anki.card_rendering.emptyCardsReport
 import app.cash.turbine.test
+import com.ichi2.anki.CollectionManager.withCol
 import com.ichi2.anki.RobolectricTest
-import com.ichi2.libanki.CardId
 import com.ichi2.libanki.Consts
 import com.ichi2.libanki.DeckId
 import com.ichi2.libanki.Note
+import com.ichi2.libanki.emptyCids
 import com.ichi2.libanki.undoStatus
 import com.ichi2.testutils.ensureOpsExecuted
 import org.hamcrest.CoreMatchers.not
 import org.hamcrest.MatcherAssert.assertThat
-import org.hamcrest.Matchers.empty
 import org.hamcrest.Matchers.equalTo
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -46,7 +48,7 @@ class DeckPickerViewModelTest : RobolectricTest() {
 
             viewModel.emptyCardsNotification.test {
                 // test a 'normal' deletion
-                viewModel.deleteEmptyCards(cardsToEmpty).join()
+                viewModel.deleteEmptyCards(cardsToEmpty, true).join()
 
                 expectMostRecentItem().also {
                     assertThat("cards deleted", it.cardsDeleted, equalTo(1))
@@ -54,23 +56,14 @@ class DeckPickerViewModelTest : RobolectricTest() {
 
                 // ensure a duplicate output is displayed to the user
                 val newCardsToEmpty = createEmptyCards()
-                viewModel.deleteEmptyCards(newCardsToEmpty).join()
+                viewModel.deleteEmptyCards(newCardsToEmpty, true).join()
 
                 expectMostRecentItem().also {
                     assertThat("cards deleted: duplicate output", it.cardsDeleted, equalTo(1))
                 }
 
-                // send the same collection in, but with the same ids.
-                // the output should only show 1 card deleted
-                val emptyCardsSentTwice = createEmptyCards()
-                viewModel.deleteEmptyCards(emptyCardsSentTwice + emptyCardsSentTwice).join()
-
-                expectMostRecentItem().also {
-                    assertThat("cards deleted: duplicate input", it.cardsDeleted, equalTo(1))
-                }
-
                 // test an empty list: a no-op should inform the user, rather than do nothing
-                viewModel.deleteEmptyCards(listOf()).join()
+                viewModel.deleteEmptyCards(emptyCardsReport { }, true).join()
 
                 expectMostRecentItem().also {
                     assertThat("'no cards deleted' is notified", it.cardsDeleted, equalTo(0))
@@ -85,7 +78,7 @@ class DeckPickerViewModelTest : RobolectricTest() {
 
             // ChangeManager assert
             ensureOpsExecuted(1) {
-                viewModel.deleteEmptyCards(cardsToEmpty).join()
+                viewModel.deleteEmptyCards(cardsToEmpty, true).join()
             }
 
             // backend assert
@@ -135,19 +128,16 @@ class DeckPickerViewModelTest : RobolectricTest() {
     }
 
     @CheckResult
-    private suspend fun createEmptyCards(): List<CardId> {
+    private suspend fun createEmptyCards(): EmptyCardsReport {
         addNoteUsingNoteTypeName("Cloze", "{{c1::Hello}} {{c2::World}}", "").apply {
             setField(0, "{{c1::Hello}}")
             col.updateNote(this)
         }
-        return viewModel.findEmptyCards().also { cardsToEmpty ->
-            assertThat("there are empty cards", cardsToEmpty, not(empty()))
-            Timber.d("created %d empty cards: [%s]", cardsToEmpty.size, cardsToEmpty)
+        return withCol { getEmptyCards() }.also { report ->
+            assertThat("there are empty cards", report.emptyCids(), not(report.emptyCids().isEmpty()))
+            Timber.d("created %d empty cards: [%s]", report.emptyCids().size, report.emptyCids())
         }
     }
-
-    /** test helper to use [deleteEmptyCards] without an [EmptyCards] instance */
-    private fun DeckPickerViewModel.deleteEmptyCards(list: List<CardId>) = deleteEmptyCards(EmptyCards(list))
 
     /**
      * Moves all cards to a deck named "Filtered"
