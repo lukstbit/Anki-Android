@@ -348,7 +348,7 @@ dependencies {
     implementation 'com.afollestad.material-dialogs:input:3.3.0'
     // noinspection GradleDependency - commons-compress 1.12 - later versions use `File.toPath`; API26 can remove?
     implementation 'org.apache.commons:commons-compress:1.12'
-    implementation 'org.apache.commons:commons-collections4:4.4' // SetUniqueList
+    implementation 'org.apache.commons:commons-collections4:4.5.0' // SetUniqueList
     implementation 'commons-io:commons-io:2.14.0' // FileUtils.contentEquals
     implementation 'net.mikehardy:google-analytics-java7:2.0.13'
     implementation 'com.squareup.okhttp3:okhttp:4.12.0'
