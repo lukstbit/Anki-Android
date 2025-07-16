@@ -21,6 +21,8 @@ import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Filter
+import android.widget.Filterable
 import android.widget.TextView
 import androidx.annotation.ColorRes
 import androidx.recyclerview.widget.RecyclerView
@@ -44,22 +46,16 @@ import com.ichi2.anki.utils.ext.findViewById
 class IncludedExcludedTagsAdapter(
     context: Context,
     val mode: TagsSelectionMode,
-) : RecyclerView.Adapter<IncludedExcludedTagsAdapter.RequireExcludeTagsViewHolder>() {
+) : RecyclerView.Adapter<IncludedExcludedTagsAdapter.RequireExcludeTagsViewHolder>(),
+    Filterable {
     private val inflater = LayoutInflater.from(context)
     var tags: MutableList<TagIncludedExcluded> = mutableListOf()
         set(value) {
             field = value
+            displayedTags = value
             notifyDataSetChanged()
         }
-
-    /**
-     * Included tags are enabled only if the relevant checkbox is checked.
-     */
-    var isEnabled = false
-        set(value) {
-            field = value
-            notifyDataSetChanged()
-        }
+    private var displayedTags = mutableListOf<TagIncludedExcluded>()
 
     /** Default background for a tag that is not selected. */
     private val selectableItemBackground: Int
@@ -91,13 +87,13 @@ class IncludedExcludedTagsAdapter(
             ),
         )
 
-    override fun getItemCount(): Int = tags.size
+    override fun getItemCount(): Int = displayedTags.size
 
     override fun onBindViewHolder(
         holder: RequireExcludeTagsViewHolder,
         position: Int,
     ) {
-        val model = tags[position]
+        val model = displayedTags[position]
         holder.tagView.text = model.userFacingLabel
         val isSelected =
             when (mode) {
@@ -110,11 +106,10 @@ class IncludedExcludedTagsAdapter(
             holder.tagView.setBackgroundResource(selectableItemBackground)
         }
         // "included" tags are allowed only if the relevant checkbox is checked
-        holder.tagView.isEnabled = !(mode == Include && !isEnabled)
         holder.tagView.setOnClickListener {
             when (mode) {
-                Include -> tags[position].isIncluded = !tags[position].isIncluded
-                Exclude -> tags[position].isExcluded = !tags[position].isExcluded
+                Include -> displayedTags[position].isIncluded = !displayedTags[position].isIncluded
+                Exclude -> displayedTags[position].isExcluded = !displayedTags[position].isExcluded
             }
             notifyDataSetChanged()
         }
@@ -129,6 +124,35 @@ class IncludedExcludedTagsAdapter(
     enum class TagsSelectionMode {
         Include,
         Exclude,
+    }
+
+    override fun getFilter(): Filter = TagsFilter()
+
+    private inner class TagsFilter : Filter() {
+        override fun performFiltering(constraint: CharSequence?): FilterResults {
+            val results = FilterResults()
+            if (constraint.isNullOrEmpty()) {
+                results.values = tags
+                results.count = tags.size
+            } else {
+                val filteredTags =
+                    tags.filter {
+                        it.name.lowercase().contains(constraint.toString().lowercase())
+                    }
+                results.values = filteredTags
+                results.count = filteredTags.size
+            }
+            return results
+        }
+
+        override fun publishResults(
+            constraint: CharSequence?,
+            results: FilterResults?,
+        ) {
+            @Suppress("UNCHECKED_CAST")
+            displayedTags = results?.values as? MutableList<TagIncludedExcluded> ?: tags
+            notifyDataSetChanged()
+        }
     }
 }
 

@@ -18,17 +18,23 @@ package com.ichi2.anki.dialogs.customstudy
 import android.app.Dialog
 import android.content.Context
 import android.os.Bundle
+import android.view.View
+import android.view.ViewGroup
 import android.widget.CheckBox
-import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.constraintlayout.widget.Group
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
+import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.setFragmentResult
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
+import androidx.viewpager2.widget.ViewPager2
+import com.google.android.material.tabs.TabLayout
+import com.google.android.material.tabs.TabLayoutMediator
+import com.google.android.material.textfield.TextInputEditText
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CollectionManager.withCol
 import com.ichi2.anki.R
@@ -56,8 +62,8 @@ import kotlinx.coroutines.launch
 class TagLimitFragment : DialogFragment() {
     private val loadingViews: Group?
         get() = dialog?.findViewById(R.id.loading_views_group)
-    private val contentViews: LinearLayout?
-        get() = dialog?.findViewById(R.id.content_views)
+    private val contentViews: Group?
+        get() = dialog?.findViewById(R.id.content_views_group)
     private val deckId
         get() = requireArguments().getLong(ARG_DECK_ID)
     private lateinit var tagsIncludedAdapter: IncludedExcludedTagsAdapter
@@ -71,17 +77,27 @@ class TagLimitFragment : DialogFragment() {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val dialogView = layoutInflater.inflate(R.layout.fragment_tag_limit, null)
-        dialogView.findViewById<RecyclerView>(R.id.tags_included)?.adapter = tagsIncludedAdapter
-        dialogView.findViewById<RecyclerView>(R.id.tags_excluded)?.adapter = tagsExcludedAdapter
-        val includeCheck =
-            dialogView.findViewById<CheckBox>(R.id.tag_selection_require_check).apply {
-                text = TR.customStudyRequireOneOrMoreOfThese()
-                setOnCheckedChangeListener { _, isChecked ->
-                    tagsIncludedAdapter.isEnabled = isChecked
-                }
+        dialogView.findViewById<TextInputEditText>(R.id.input_tags_filter).doOnTextChanged { text, _, _, _ ->
+            tagsIncludedAdapter.filter.filter(text)
+            tagsExcludedAdapter.filter.filter(text)
+        }
+        val tabLayout =
+            dialogView.findViewById<TabLayout>(R.id.tabs_tags).apply {
+                addTab(newTab().setText("Included"))
+                addTab(newTab().setText("Excluded"))
             }
-        dialogView.findViewById<TextView>(R.id.tag_selection_exclude_label).text =
-            TR.customStudySelectTagsToExclude()
+        val pager =
+            dialogView.findViewById<ViewPager2>(R.id.pager).apply {
+                adapter = TagsPageAdapter()
+            }
+        TabLayoutMediator(tabLayout, pager) { tab, index ->
+            tab.text =
+                when (index) {
+                    0 -> "Included"
+                    1 -> "Excluded"
+                    else -> error("Unexpected custom study tag category")
+                }
+        }.attach()
         val title =
             TR
                 .customStudySelectiveStudy()
@@ -104,13 +120,8 @@ class TagLimitFragment : DialogFragment() {
                 // prevent race conditions
                 if (!allowSubmit) return@setOnClickListener
                 allowSubmit = false
-                // take the selection only if the require checkbox is currently checked
                 val tagsToInclude =
-                    if (includeCheck.isChecked) {
-                        tagsIncludedAdapter.tags.filter { it.isIncluded }.map { it.name }
-                    } else {
-                        emptyList()
-                    }
+                    tagsIncludedAdapter.tags.filter { it.isIncluded }.map { it.name }
                 val tagsToExclude =
                     tagsExcludedAdapter.tags.filter { it.isExcluded }.map { it.name }
                 if (tagsToInclude.size + tagsToExclude.size > 100) {
@@ -151,6 +162,41 @@ class TagLimitFragment : DialogFragment() {
             loadingViews?.isVisible = false
             contentViews?.isVisible = true
         }
+    }
+
+    private inner class TagsPageAdapter : RecyclerView.Adapter<TagsPageViewHolder>() {
+        override fun onCreateViewHolder(
+            parent: ViewGroup,
+            viewType: Int,
+        ): TagsPageViewHolder = TagsPageViewHolder(layoutInflater.inflate(R.layout.item_tag_page, parent, false))
+
+        override fun getItemCount(): Int = 2 // two pages: included & excluded tags
+
+        override fun onBindViewHolder(
+            holder: TagsPageViewHolder,
+            position: Int,
+        ) {
+            when (position) {
+                0 -> {
+                    holder.pageList.adapter = tagsIncludedAdapter
+                    holder.pageLabel.text = TR.customStudyRequireOneOrMoreOfThese()
+                }
+                1 -> {
+                    holder.pageList.adapter = tagsExcludedAdapter
+                    holder.pageLabel.text = TR.customStudySelectTagsToExclude()
+                }
+                else -> {
+                    error("Unexpected custom study tags page")
+                }
+            }
+        }
+    }
+
+    private class TagsPageViewHolder(
+        rowView: View,
+    ) : RecyclerView.ViewHolder(rowView) {
+        val pageList: RecyclerView = rowView.findViewById(R.id.tags_page_list)
+        val pageLabel: TextView = rowView.findViewById(R.id.tag_page_label)
     }
 
     companion object {
