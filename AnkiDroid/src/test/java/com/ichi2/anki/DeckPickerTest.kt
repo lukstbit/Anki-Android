@@ -673,6 +673,8 @@ class DeckPickerTest : RobolectricTest() {
                 waitForMenu()
                 assertThat(getUndoTitle(), containsString("Update Note"))
                 undo()
+                invalidateMenu()
+                waitForMenu()
                 assertThat(getUndoTitle(), containsString("Add Note"))
             }
         }
