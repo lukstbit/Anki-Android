@@ -25,8 +25,10 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.webkit.WebViewClient
+import androidx.annotation.AttrRes
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.res.getColorOrThrow
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
@@ -39,6 +41,7 @@ import com.ichi2.anki.SingleFragmentActivity
 import com.ichi2.anki.databinding.FragmentMediaCheckBinding
 import com.ichi2.anki.launchCatchingTask
 import com.ichi2.anki.ui.internationalization.toSentenceCase
+import com.ichi2.anki.utils.ext.usingStyledAttributes
 import com.ichi2.anki.withProgress
 import com.ichi2.utils.cancelable
 import com.ichi2.utils.message
@@ -46,9 +49,11 @@ import com.ichi2.utils.negativeButton
 import com.ichi2.utils.positiveButton
 import com.ichi2.utils.show
 import com.ichi2.utils.title
+import com.ichi2.utils.toRGBHex
 import dev.androidbroadcast.vbpd.viewBinding
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 /**
  * MediaCheckFragment for displaying a list of media files that are either unused or missing.
@@ -131,19 +136,52 @@ class MediaCheckFragment : Fragment(R.layout.fragment_media_check) {
     }
 
     private fun updateWebView(report: String) {
+        // customize the WebView background and text color so we use proper colors for each theme
+        // TODO Material3Fix should use specific colors from the material theme
+        val updatedBackgroundColor = getThemeColorSafely(android.R.attr.colorBackground)
+        val updatedTextColor = getThemeColorSafely(android.R.attr.textColor)
+        // only apply the changes if both colors are available otherwise we risk making the content
+        // invisible
+        val colorsCustomization =
+            if (updatedBackgroundColor != null && updatedTextColor != null) {
+                "background:$updatedBackgroundColor;color:$updatedTextColor;"
+            } else {
+                ""
+            }
+        Timber.i("Customizing WebView colors with: $colorsCustomization")
+
         val html =
             """
             <html>
                 <body style="
                       padding: 0px 8px;
                     font-size:14px;
-                    white-space: pre-wrap;">$report
+                    white-space: pre-wrap;$colorsCustomization">$report
                 </body>
             </html>
             """.trimIndent()
 
         binding.webView.webViewClient = WebViewClient()
         binding.webView.loadDataWithBaseURL(null, html, "text/html", "UTF-8", null)
+    }
+
+    /**
+     * @return the RGB hex string of a color or null if any error occurred while building the string
+     */
+    private fun getThemeColorSafely(
+        @AttrRes id: Int,
+    ): String? {
+        val colorFetchResult =
+            runCatching {
+                requireContext().usingStyledAttributes(null, intArrayOf(id)) {
+                    getColorOrThrow(0).toRGBHex()
+                }
+            }
+        return if (colorFetchResult.isSuccess) {
+            colorFetchResult.getOrNull()
+        } else {
+            null
+        }
     }
 
     private fun setupButtonListeners() {
