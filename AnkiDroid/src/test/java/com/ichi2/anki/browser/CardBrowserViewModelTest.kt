@@ -77,6 +77,7 @@ import com.ichi2.anki.model.LegacySortType
 import com.ichi2.anki.model.LegacySortType.NO_SORTING
 import com.ichi2.anki.model.LegacySortType.SORT_FIELD
 import com.ichi2.anki.model.SelectableDeck
+import com.ichi2.anki.model.SortType
 import com.ichi2.anki.servicelayer.NoteService
 import com.ichi2.anki.setFlagFilterSync
 import com.ichi2.anki.settings.Prefs
@@ -1528,6 +1529,67 @@ class CardBrowserViewModelTest : JvmTest() {
 
             assertThat("hello and hêllo are matched", rowCount, equalTo(2))
             assertThat("input is unchanged", searchTerms, equalTo("hello"))
+        }
+    }
+
+    @Test
+    fun `updating sort type launches search`() =
+        runViewModelTest {
+            flowOfSearchState.test {
+                expectNoEvents()
+
+                setSortType(SortType.NoOrdering)
+
+                expectMostRecentItem()
+            }
+        }
+
+    @Test
+    fun `updating sort type updates flows - no ordering`() =
+        runViewModelTest {
+            assertEquals(LegacySortType.SORT_FIELD, order)
+
+            setSortType(SortType.NoOrdering)
+
+            assertEquals(LegacySortType.NO_SORTING, order)
+        }
+
+    @Test
+    fun `updating sort type updates flows - known column`() =
+        runViewModelTest {
+            assertEquals(LegacySortType.SORT_FIELD, order)
+
+            setSortType(SortType.CollectionOrdering(BrowserColumnKey("cardDue"), true))
+
+            assertEquals(LegacySortType.DUE_TIME, order)
+        }
+
+    @Test
+    fun `updating sort type updates order`() =
+        runViewModelTest {
+            assertEquals(false, orderAsc)
+
+            setSortType(SortType.CollectionOrdering(BrowserColumnKey("cardDue"), true))
+
+            assertEquals(true, orderAsc)
+        }
+
+    @Test
+    fun `sort type integration test`() {
+        val firstId = addBasicNote("a").firstCard().id
+        addBasicNote("b")
+        val lastId = addBasicNote("c").firstCard().id
+
+        runViewModelTest {
+            assertEquals(firstId, this.cards[0].cardOrNoteId)
+
+            setSortType(SortType.CollectionOrdering(BrowserColumnKey("noteFld"), reverse = true))
+
+            assertEquals(lastId, this.cards[0].cardOrNoteId)
+
+            setSortType(SortType.CollectionOrdering(BrowserColumnKey("noteFld"), reverse = false))
+
+            assertEquals(firstId, this.cards[0].cardOrNoteId)
         }
     }
 
