@@ -25,9 +25,11 @@ import androidx.activity.OnBackPressedCallback
 import androidx.annotation.CheckResult
 import androidx.appcompat.app.AlertDialog
 import androidx.core.widget.doAfterTextChanged
+import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.databinding.CardBrowserAppearanceBinding
 import com.ichi2.anki.dialogs.DiscardChangesDialog
 import com.ichi2.anki.libanki.CardTemplate
+import com.ichi2.anki.ui.internationalization.toSentenceCase
 import com.ichi2.utils.message
 import com.ichi2.utils.negativeButton
 import com.ichi2.utils.positiveButton
@@ -115,7 +117,8 @@ class CardTemplateBrowserAppearanceEditor : AnkiActivity(R.layout.card_browser_a
 
     private fun showRestoreDefaultDialog() {
         AlertDialog.Builder(this).show {
-            positiveButton(R.string.dialog_ok) {
+            setTitle(TR.cardTemplatesRestoreToDefault().toSentenceCase(R.string.sentence_restore_to_default))
+            positiveButton(R.string.restore) {
                 restoreDefaultAndClose()
             }
             negativeButton(R.string.dialog_cancel)

@@ -181,7 +181,7 @@ class TagsDialog : AnalyticsDialogFragment {
 
         val positiveText =
             if (type == DialogType.EDIT_TAGS) {
-                getString(R.string.dialog_ok)
+                getString(R.string.dialog_confirm)
             } else {
                 getString(R.string.select)
             }
@@ -381,11 +381,11 @@ class TagsDialog : AnalyticsDialogFragment {
                 .Builder(requireActivity())
                 .show {
                     title(text = getString(R.string.add_tag))
-                    positiveButton(R.string.dialog_ok)
+                    positiveButton(R.string.menu_add)
                     negativeButton(R.string.dialog_cancel)
                     setView(R.layout.dialog_generic_text_input)
                 }.input(
-                    hint = getString(R.string.tag_name),
+                    hint = TR.actionsName().dropLastWhile { it == ':' },
                     inputType = InputType.TYPE_CLASS_TEXT,
                     displayKeyboard = true,
                 ) { d: AlertDialog?, input: CharSequence ->

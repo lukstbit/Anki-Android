@@ -45,6 +45,10 @@ class SentenceCaseTest : RobolectricTest() {
             assertThat(TR.browsingChangeNotetype().toSentenceCase(this, R.string.sentence_change_note_type), equalTo("Change note type"))
             assertThat(TR.actionsGradeNow().toSentenceCase(this, R.string.sentence_grade_now), equalTo("Grade now"))
             assertThat(TR.notetypesAddNoteType().toSentenceCase(this, R.string.sentence_add_note_type), equalTo("Add note type"))
+            assertThat(
+                TR.cardTemplatesRestoreToDefault().toSentenceCase(this, R.string.sentence_restore_to_default),
+                equalTo("Restore to default"),
+            )
 
             assertThat("syncMediaLogTitle", TR.syncMediaLogTitle(), equalTo("Media Sync Log"))
             assertThat(

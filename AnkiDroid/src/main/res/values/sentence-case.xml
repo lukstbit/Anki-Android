@@ -58,4 +58,5 @@ undoActionUndone()
     <string name="sentence_card_stats_previous_card_study">Previous card (study)</string>
     <string name="sentence_actions_previous_card_info">Previous card info</string>
     <string name="sentence_add_note_type">Add note type</string>
+    <string name="sentence_restore_to_default">Restore to default</string>
 </resources>

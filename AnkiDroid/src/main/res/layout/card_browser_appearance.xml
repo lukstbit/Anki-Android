@@ -39,6 +39,7 @@
                 />
 
             <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/question_format_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/card_template_browser_appearance_question_format"
@@ -54,6 +55,7 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/answer_format_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/card_template_browser_appearance_answer_format"
