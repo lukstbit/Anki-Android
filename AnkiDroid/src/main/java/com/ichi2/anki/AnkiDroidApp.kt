@@ -67,6 +67,7 @@ import com.ichi2.utils.Permissions
 import com.ichi2.utils.setWebContentsDebuggingEnabled
 import com.ichi2.widget.cardanalysis.CardAnalysisWidget
 import com.ichi2.widget.deckpicker.DeckPickerWidget
+import com.ichi2.widget.restoreRecurringAlarms
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -214,6 +215,8 @@ open class AnkiDroidApp :
 
         // listen for day rollover: time + timezone changes
         DayRolloverHandler.listenForRolloverEvents(this)
+
+        restoreRecurringAlarms(this)
 
         registerActivityLifecycleCallbacks(
             object : ActivityLifecycleCallbacks {
