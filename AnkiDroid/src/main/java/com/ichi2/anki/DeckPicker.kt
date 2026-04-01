@@ -1392,7 +1392,21 @@ open class DeckPicker :
                 ExportDialogFragment.newInstance().show(supportFragmentManager, "exportDialog")
                 return true
             }
+            R.id.action_create_backup -> {
+                Timber.i("DeckPicker::Create backup")
+                createBackup()
+                return true
+            }
             else -> return super.onOptionsItemSelected(item)
+        }
+    }
+
+    private fun createBackup() {
+        launchCatchingTask {
+            withProgress(message = TR.profilesCreatingBackup()) {
+                performBackupInBackground(true)
+            }
+            showThemedToast(this@DeckPicker, TR.profilesBackupCreated(), false)
         }
     }
 
@@ -1564,7 +1578,11 @@ open class DeckPicker :
                 return true
             }
             KeyEvent.KEYCODE_B -> {
-                if (event.isCtrlPressed) {
+                if (event.isShiftPressed && event.isCtrlPressed) {
+                    // shortcut SHIFT + CTRL + B
+                    Timber.i("Create backup from keypress")
+                    createBackup()
+                } else if (event.isCtrlPressed) {
                     // Shortcut: CTRL + B
                     Timber.i("show restore backup dialog from keypress")
                     showDatabaseErrorDialog(DatabaseErrorDialogType.DIALOG_CONFIRM_RESTORE_BACKUP)
