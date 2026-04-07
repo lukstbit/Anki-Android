@@ -219,7 +219,7 @@ class CreateDeckDialogTest : RobolectricTest() {
 
                 updateSearchDecksIcon(deckPicker)
                 assertEquals(
-                    deckPicker.optionsMenuState?.searchIcon,
+                    deckPicker.viewModel.optionsMenuState?.searchIcon,
                     decksCount() >= 10,
                 )
 
@@ -231,7 +231,7 @@ class CreateDeckDialogTest : RobolectricTest() {
                     assertEquals(deckCounter.get(), decksCount())
 
                     updateSearchDecksIcon(deckPicker)
-                    assertFalse(deckPicker.optionsMenuState?.searchIcon ?: true)
+                    assertFalse(deckPicker.viewModel.optionsMenuState?.searchIcon ?: true)
                 }
             }
         }
@@ -239,7 +239,7 @@ class CreateDeckDialogTest : RobolectricTest() {
     private suspend fun updateSearchDecksIcon(deckPicker: DeckPicker) {
         // the icon update requires a call to refreshState() and subsequent menu
         // rebuild; access it directly instead so the test passes
-        deckPicker.updateMenuState()
+        deckPicker.viewModel.refreshMenuState()
     }
 
     @Test
@@ -247,14 +247,14 @@ class CreateDeckDialogTest : RobolectricTest() {
         runTest {
             val deckPicker =
                 suspendCoroutine { coro -> activityScenario.onActivity { coro.resume(it) } }
-            deckPicker.updateMenuState()
-            assertEquals(deckPicker.optionsMenuState!!.searchIcon, false)
+            deckPicker.viewModel.refreshMenuState()
+            assertEquals(deckPicker.viewModel.optionsMenuState!!.searchIcon, false)
             // a single top-level deck with lots of subdecks should turn the icon on
             withCol {
                 decks.id(deckTreeName(0, 10, "Deck"))
             }
-            deckPicker.updateMenuState()
-            assertEquals(deckPicker.optionsMenuState!!.searchIcon, true)
+            deckPicker.viewModel.refreshMenuState()
+            assertEquals(deckPicker.viewModel.optionsMenuState!!.searchIcon, true)
         }
 
     @Test
