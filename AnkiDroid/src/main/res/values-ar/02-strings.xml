@@ -226,6 +226,7 @@
     <!-- Whiteboard eraser mode toggle message in Reviewer -->
     <string name="white_board_eraser_enabled">تم تفعيل وضع الممحاة</string>
     <string name="white_board_eraser_disabled">تم تعطيل وضع الممحاة</string>
+    <string comment="Progress amount e.g. \'28 MB/141 MB\'. %1$s is the current amount, %2$s is the max." name="progress_amount_bytes">%1$s/%2$s</string>
     <string name="media_file_size_warning_title">مِلف الوسائط كبير جدًا</string>
     <string name="media_file_size_warning_message" comment="1$s: File name, 2$s: File size, 3$s: The size limit (e.g. 100MB)">المِلف «%1$s» (%2$s) يفوق حد آنكي ويب الذي هو %3$s ولا يمكن مزامنته. أتريد إضافته مع ذلك؟</string>
     <string name="media_file_size_add_anyway">إضافة على أي حال</string>

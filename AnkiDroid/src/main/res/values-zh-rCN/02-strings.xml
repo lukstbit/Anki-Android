@@ -211,6 +211,7 @@
     <!-- Whiteboard eraser mode toggle message in Reviewer -->
     <string name="white_board_eraser_enabled">擦除模式已激活</string>
     <string name="white_board_eraser_disabled">擦除模式已停用</string>
+    <string comment="Progress amount e.g. \'28 MB/141 MB\'. %1$s is the current amount, %2$s is the max." name="progress_amount_bytes">%1$s/%2$s</string>
     <string name="media_file_size_warning_title">媒体太大</string>
     <string name="media_file_size_warning_message" comment="1$s: File name, 2$s: File size, 3$s: The size limit (e.g. 100MB)">文件“%1$s”（%2$s）超过 AnkiWeb 的 %3$s 限制，无法同步。仍要添加吗？</string>
     <string name="media_file_size_add_anyway">仍要添加</string>
