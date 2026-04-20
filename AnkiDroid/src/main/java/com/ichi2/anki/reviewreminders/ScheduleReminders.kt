@@ -337,10 +337,12 @@ class ScheduleReminders :
             )
         }
         newOrModifiedReminder?.let {
-            AlarmManagerService.scheduleReviewReminderNotification(
-                requireContext(),
-                it,
-            )
+            if (it.enabled) {
+                AlarmManagerService.scheduleReviewReminderNotification(
+                    requireContext(),
+                    it,
+                )
+            }
         }
     }
 
