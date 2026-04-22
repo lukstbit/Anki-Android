@@ -115,6 +115,7 @@ class ReviewerViewModel(
     val destinationFlow = MutableSharedFlow<Destination>()
     val editNoteTagsFlow = MutableSharedFlow<NoteId>()
     val setDueDateFlow = MutableSharedFlow<CardId>()
+    val resetProgressFlow = MutableSharedFlow<Unit>()
     val answerFeedbackFlow = MutableSharedFlow<Rating>()
     val voiceRecorderEnabledFlow = MutableStateFlow(repository.isRecordVoiceEnabled)
     val whiteboardEnabledFlow = MutableStateFlow(repository.isWhiteboardEnabled)
@@ -200,6 +201,8 @@ class ReviewerViewModel(
             }
         executeAction(action)
     }
+
+    suspend fun getCardId() = currentCard.await().id
 
     /**
      * Sends an [eval] request to load the card answer, and updates components
@@ -671,6 +674,8 @@ class ReviewerViewModel(
         setDueDateFlow.emit(cardId)
     }
 
+    private suspend fun launchResetProgress() = resetProgressFlow.emit(Unit)
+
     private suspend fun setupAnswerTimer(card: Card) {
         val shouldShowTimer = withCol { card.shouldShowTimer(this@withCol) }
         val limitMs = withCol { card.timeLimit(this@withCol) }
@@ -710,6 +715,7 @@ class ReviewerViewModel(
                     ViewerAction.REDO -> redo()
                     ViewerAction.UNDO -> undo()
                     ViewerAction.RESCHEDULE_NOTE -> launchSetDueDate()
+                    ViewerAction.RESET_PROGRESS -> launchResetProgress()
                     ViewerAction.TOGGLE_AUTO_ADVANCE -> toggleAutoAdvance()
                     ViewerAction.BURY_NOTE -> buryNote()
                     ViewerAction.BURY_CARD -> buryCard()
