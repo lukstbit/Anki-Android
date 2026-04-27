@@ -126,7 +126,6 @@ import com.ichi2.anki.deckpicker.ShortcutData
 import com.ichi2.anki.deckpicker.SyncIconState
 import com.ichi2.anki.dialogs.AsyncDialogFragment
 import com.ichi2.anki.dialogs.BackupPromptDialog
-import com.ichi2.anki.dialogs.CreateDeckDialog
 import com.ichi2.anki.dialogs.DatabaseErrorDialog.CustomExceptionData
 import com.ichi2.anki.dialogs.DatabaseErrorDialog.DatabaseErrorDialogType
 import com.ichi2.anki.dialogs.DeckPickerAnalyticsOptInDialog
@@ -149,6 +148,11 @@ import com.ichi2.anki.dialogs.SyncErrorDialog.SyncErrorDialogListener
 import com.ichi2.anki.dialogs.customstudy.CustomStudyDialog
 import com.ichi2.anki.dialogs.customstudy.CustomStudyDialog.CustomStudyAction
 import com.ichi2.anki.dialogs.customstudy.CustomStudyDialog.CustomStudyAction.Companion.REQUEST_KEY
+import com.ichi2.anki.dialogs.decks.CreateDeckType
+import com.ichi2.anki.dialogs.decks.createDeck
+import com.ichi2.anki.dialogs.decks.createSubDeck
+import com.ichi2.anki.dialogs.decks.registerCreateDeckHandler
+import com.ichi2.anki.dialogs.decks.renameDeck
 import com.ichi2.anki.dialogs.setDeckPickerContextMenuResultListener
 import com.ichi2.anki.export.ExportDialogFragment
 import com.ichi2.anki.filtered.FilteredDeckOptionsFragment
@@ -217,6 +221,7 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankiweb.rsdroid.Translations
+import net.ankiweb.rsdroid.exceptions.BackendDeckIsFilteredException
 import timber.log.Timber
 import java.io.File
 import kotlin.time.Duration
@@ -581,6 +586,15 @@ open class DeckPicker :
                 }
             }
         }
+        supportFragmentManager.registerCreateDeckHandler(this) { type, name, did ->
+            Timber.i("Starting creating/renaming deck: $type")
+            // TODO the updates in response to these actions should be handled by the ViewModel
+            when (type) {
+                CreateDeckType.Deck -> createDeck(name)
+                CreateDeckType.Subdeck -> createSubDeck(name)
+                CreateDeckType.Rename -> renameDeck(did, name)
+            }
+        }
 
         setDeckPickerContextMenuResultListener { result ->
             handleContextMenuSelection(result.option, result.deckId)
@@ -936,7 +950,7 @@ open class DeckPicker :
             }
             DeckPickerContextMenuOption.RENAME_DECK -> {
                 Timber.i("ContextMenu: Rename deck selected")
-                renameDeckDialog(deckId)
+                showRenameDeckDialog(deckId)
                 dismissAllDialogFragments()
             }
             DeckPickerContextMenuOption.EXPORT_DECK -> {
@@ -960,7 +974,7 @@ open class DeckPicker :
             }
             DeckPickerContextMenuOption.CREATE_SUBDECK -> {
                 Timber.i("ContextMenu: Create Subdeck selected")
-                createSubDeckDialog(deckId)
+                showCreateSubDeckDialog(deckId)
                 dismissAllDialogFragments()
             }
             DeckPickerContextMenuOption.BROWSE_CARDS -> {
@@ -1339,7 +1353,7 @@ open class DeckPicker :
             R.id.action_deck_rename -> {
                 launchCatchingTask {
                     val targetDeckId = withCol { decks.selected() }
-                    renameDeckDialog(targetDeckId)
+                    showRenameDeckDialog(targetDeckId)
                 }
                 return true
             }
@@ -1616,7 +1630,7 @@ open class DeckPicker :
                 // that is, when it appears in the trailing study option fragment
                 if (fragmented) {
                     Timber.i("Rename Deck from keypress")
-                    viewModel.focusedDeck?.let { did -> renameDeckDialog(did) }
+                    viewModel.focusedDeck?.let { did -> showRenameDeckDialog(did) }
                     return true
                 }
             }
@@ -2099,45 +2113,48 @@ open class DeckPicker :
         ShortcutUtils.disableShortcuts(this, deckTreeDids, errorMessage)
     }
 
-    fun renameDeckDialog(did: DeckId) {
+    fun showRenameDeckDialog(did: DeckId) {
+        supportFragmentManager.renameDeck(did)
+    }
+
+    private fun renameDeck(
+        deckId: DeckId,
+        newName: String,
+    ) {
+        Timber.d("Renaming deck...")
         launchCatchingTask {
-            val currentName = withCol { decks.name(did) }
-            val createDeckDialog =
-                CreateDeckDialog(
-                    context = this@DeckPicker,
-                    title = getString(R.string.rename_deck),
-                    deckDialogType = CreateDeckDialog.DeckDialogType.RENAME_DECK,
-                    parentId = null,
-                )
-            createDeckDialog.deckName = currentName
-            createDeckDialog.onNewDeckCreated = {
+            try {
+                withCol {
+                    decks.rename(decks.getLegacy(deckId)!!, newName)
+                }
+                showSnackbar(getString(R.string.deck_renamed))
                 dismissAllDialogFragments()
                 deckListAdapter.notifyDataSetChanged()
                 updateDeckList()
                 tryShowStudyOptionsPanel()
+            } catch (e: BackendDeckIsFilteredException) {
+                Timber.w(e)
+                showSnackbar(e.localizedMessage ?: e.message ?: "", Snackbar.LENGTH_LONG)
             }
-            createDeckDialog.showDialog()
         }
     }
 
-    /**
-     * Displays a dialog for creating a new deck.
-     *
-     * @see CreateDeckDialog
-     */
     fun showCreateDeckDialog() {
-        val createDeckDialog =
-            CreateDeckDialog(
-                context = this@DeckPicker,
-                title = TR.sentenceCase.createDeck,
-                deckDialogType = CreateDeckDialog.DeckDialogType.DECK,
-                parentId = null,
-            )
-        createDeckDialog.onNewDeckCreated = {
+        supportFragmentManager.createDeck()
+    }
+
+    private fun createDeck(name: String) {
+        Timber.d("Creating a new deck...")
+        launchCatchingTask {
+            val newDeckId =
+                withProgress {
+                    withCol { decks.id(name) }
+                }
+            Timber.d("Created deck '%s'; id: %d", name, newDeckId)
+            showSnackbar(getString(R.string.deck_created))
             updateDeckList()
             invalidateOptionsMenu()
         }
-        createDeckDialog.showDialog()
     }
 
     /**
@@ -2183,23 +2200,26 @@ open class DeckPicker :
         reviewLauncher.launch(intent)
     }
 
-    private fun createSubDeckDialog(did: DeckId) {
-        val createDeckDialog =
-            CreateDeckDialog(
-                context = this@DeckPicker,
-                title = getString(R.string.create_subdeck),
-                deckDialogType = CreateDeckDialog.DeckDialogType.SUB_DECK,
-                parentId = did,
-            )
-        createDeckDialog.onNewDeckCreated = {
-            // a deck was created
+    private fun showCreateSubDeckDialog(did: DeckId) {
+        supportFragmentManager.createSubDeck(did)
+    }
+
+    // TODO mostly duplicated with createDeck(name)
+    private fun createSubDeck(name: String) {
+        Timber.d("Creating sub deck...")
+        launchCatchingTask {
+            val newDeckId =
+                withProgress {
+                    withCol { decks.id(name) }
+                }
+            Timber.d("Created deck '%s'; id: %d", name, newDeckId)
+            showSnackbar(getString(R.string.deck_created))
             dismissAllDialogFragments()
             deckListAdapter.notifyDataSetChanged()
             updateDeckList()
             tryShowStudyOptionsPanel()
             invalidateOptionsMenu()
         }
-        createDeckDialog.showDialog()
     }
 
     /**
