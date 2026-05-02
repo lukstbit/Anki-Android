@@ -51,10 +51,10 @@ class DeckSelectionDialogTest : RobolectricTest() {
         val summaryMessage = "Choose a deck from the list"
         val keepRestoreDefaultButton = true
 
-        val dialog = DeckSelectionDialog.newInstance(dialogTitle, summaryMessage, keepRestoreDefaultButton, decks)
+        val dialog = DeckSelectionDialog.newInstance(title = dialogTitle, templateEditorMessage = summaryMessage, decks = decks)
         assertNotNull(dialog)
-        assertEquals(dialogTitle, dialog.arguments?.getString("title"))
-        assertEquals(summaryMessage, dialog.arguments?.getString("summaryMessage"))
+        assertEquals(dialogTitle, dialog.arguments?.getString("arg_title"))
+        assertEquals(summaryMessage, dialog.arguments?.getString("arg_template_editor_message"))
     }
 
     @Test
