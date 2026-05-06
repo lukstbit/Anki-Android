@@ -96,10 +96,10 @@ import com.ichi2.anki.common.utils.ext.ifZero
 import com.ichi2.anki.compat.CompatHelper.Companion.getSerializableCompat
 import com.ichi2.anki.compat.setTooltipTextCompat
 import com.ichi2.anki.dialogs.ChangeNoteTypeDialog
-import com.ichi2.anki.dialogs.DeckSelectionDialog
 import com.ichi2.anki.dialogs.DiscardChangesDialog
 import com.ichi2.anki.dialogs.IntegerDialog
 import com.ichi2.anki.dialogs.registerDeckSelectedHandler
+import com.ichi2.anki.dialogs.startDeckSelection
 import com.ichi2.anki.dialogs.tags.TagsDialog
 import com.ichi2.anki.dialogs.tags.TagsDialogFactory
 import com.ichi2.anki.dialogs.tags.TagsDialogListener
@@ -865,7 +865,7 @@ class NoteEditorFragment :
         view?.findViewById<TextView>(R.id.note_deck_name)?.apply {
             text = col.decks.name(deckId)
             setOnClickListener {
-                startDeckSelection(all = false, filtered = false, requestKey = REQUEST_DECK_SELECTION_NOTE_EDITOR)
+                startDeckSelection(allowAll = false, allowFiltered = false, requestKey = REQUEST_DECK_SELECTION_NOTE_EDITOR)
             }
         }
         val getTextFromSearchView = requireArguments().getString(EXTRA_TEXT_FROM_SEARCH_VIEW)
@@ -1100,8 +1100,8 @@ class NoteEditorFragment :
                 if (event.isCtrlPressed) {
                     launchCatchingTask {
                         startDeckSelection(
-                            all = false,
-                            filtered = false,
+                            allowAll = false,
+                            allowFiltered = false,
                             requestKey = REQUEST_DECK_SELECTION_NOTE_EDITOR,
                         )
                     }
