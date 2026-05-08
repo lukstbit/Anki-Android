@@ -31,7 +31,6 @@ import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
-import com.ichi2.anki.ALL_DECKS_ID
 import com.ichi2.anki.CollectionManager.withCol
 import com.ichi2.anki.R
 import com.ichi2.anki.databinding.DialogAddEditReminderBinding
@@ -46,6 +45,7 @@ import com.ichi2.anki.model.SelectableDeck
 import com.ichi2.anki.reviewreminders.AddEditReminderDialog.Companion.getInstance
 import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.snackbar.showSnackbar
+import com.ichi2.anki.utils.ext.ALL_DECKS_ID
 import com.ichi2.anki.utils.ext.getParcelableCompat
 import com.ichi2.anki.utils.ext.showDialogFragment
 import com.ichi2.utils.DisplayUtils.resizeWhenSoftInputShown

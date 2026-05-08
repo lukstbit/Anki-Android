@@ -38,7 +38,6 @@ import androidx.fragment.app.setFragmentResultListener
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.RecyclerView
 import anki.decks.deckTreeNode
-import com.ichi2.anki.ALL_DECKS_ID
 import com.ichi2.anki.AnkiActivity
 import com.ichi2.anki.CardTemplateEditor
 import com.ichi2.anki.CollectionManager.withCol
@@ -55,6 +54,7 @@ import com.ichi2.anki.launchCatchingTask
 import com.ichi2.anki.libanki.DeckId
 import com.ichi2.anki.libanki.sched.DeckNode
 import com.ichi2.anki.model.SelectableDeck
+import com.ichi2.anki.utils.ext.ALL_DECKS_ID
 import com.ichi2.anki.utils.ext.getParcelableCompat
 import com.ichi2.anki.utils.ext.setFragmentResultListener
 import com.ichi2.anki.withProgress

@@ -16,7 +16,13 @@
 
 package com.ichi2.anki.utils.ext
 
+import com.ichi2.anki.libanki.DeckId
 import com.ichi2.anki.libanki.Decks
+
+/**
+ * [DeckId] constant to represent "All decks" in screens that need it(ex. browser).
+ */
+const val ALL_DECKS_ID = 0L
 
 val Decks.defaultConfig
     get() = getConfig(confId = 1)!!

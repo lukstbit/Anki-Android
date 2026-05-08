@@ -34,7 +34,6 @@ import anki.generic.Empty
 import anki.import_export.ExportLimit
 import anki.import_export.exportLimit
 import anki.notes.noteIds
-import com.ichi2.anki.ALL_DECKS_ID
 import com.ichi2.anki.CollectionManager
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CollectionManager.withCol
@@ -53,6 +52,7 @@ import com.ichi2.anki.libanki.DeckId
 import com.ichi2.anki.libanki.DeckNameId
 import com.ichi2.anki.requireAnkiActivity
 import com.ichi2.anki.ui.BasicItemSelectedListener
+import com.ichi2.anki.utils.ext.ALL_DECKS_ID
 import com.ichi2.anki.utils.ext.requireParcelable
 import com.ichi2.utils.negativeButton
 import com.ichi2.utils.positiveButton

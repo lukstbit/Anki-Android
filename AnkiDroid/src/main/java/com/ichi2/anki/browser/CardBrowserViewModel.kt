@@ -33,7 +33,6 @@ import anki.collection.OpChanges
 import anki.collection.OpChangesWithCount
 import anki.search.BrowserColumns
 import anki.search.BrowserRow
-import com.ichi2.anki.ALL_DECKS_ID
 import com.ichi2.anki.AnkiDroidApp
 import com.ichi2.anki.CollectionManager
 import com.ichi2.anki.CollectionManager.TR
@@ -79,6 +78,7 @@ import com.ichi2.anki.pages.CardInfoDestination
 import com.ichi2.anki.preferences.SharedPreferencesProvider
 import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.settings.PrefsRepository
+import com.ichi2.anki.utils.ext.ALL_DECKS_ID
 import com.ichi2.anki.utils.ext.currentCardBrowse
 import com.ichi2.anki.utils.ext.getCardOrNull
 import com.ichi2.anki.utils.ext.ignoreAccentsInSearch
