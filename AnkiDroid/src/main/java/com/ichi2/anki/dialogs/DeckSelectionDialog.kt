@@ -17,54 +17,46 @@
 package com.ichi2.anki.dialogs
 
 import android.app.Dialog
-import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import android.view.WindowManager
-import android.widget.Filter
-import android.widget.Filterable
-import android.widget.ImageButton
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
-import androidx.core.content.res.getDrawableOrThrow
-import androidx.core.content.res.use
 import androidx.core.os.BundleCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.setFragmentResultListener
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.DividerItemDecoration
-import androidx.recyclerview.widget.RecyclerView
-import anki.decks.deckTreeNode
 import com.ichi2.anki.AnkiActivity
 import com.ichi2.anki.CardTemplateEditor
 import com.ichi2.anki.CollectionManager.withCol
-import com.ichi2.anki.OnContextAndLongClickListener.Companion.setOnContextAndLongClickListener
 import com.ichi2.anki.R
 import com.ichi2.anki.analytics.AnalyticsDialogFragment
-import com.ichi2.anki.common.ALL_DECKS_ID
 import com.ichi2.anki.common.annotations.NeedsTest
 import com.ichi2.anki.databinding.DialogDeckPickerBinding
-import com.ichi2.anki.databinding.ItemDeckPickerDialogBinding
-import com.ichi2.anki.deckpicker.DeckFilters
 import com.ichi2.anki.dialogs.DeckSelectionDialog.Companion.ARG_SELECTED_DECK
 import com.ichi2.anki.dialogs.DeckSelectionDialog.Companion.REQUEST_SELECT_DECK
+import com.ichi2.anki.dialogs.decks.DeckSelectionAdapter
+import com.ichi2.anki.dialogs.decks.DeckSelectionState
+import com.ichi2.anki.dialogs.decks.DeckSelectionViewModel
 import com.ichi2.anki.launchCatchingTask
 import com.ichi2.anki.libanki.DeckId
-import com.ichi2.anki.libanki.sched.DeckNode
 import com.ichi2.anki.model.SelectableDeck
 import com.ichi2.anki.utils.ext.getParcelableCompat
 import com.ichi2.anki.utils.ext.setFragmentResultListener
 import com.ichi2.anki.withProgress
 import com.ichi2.ui.AccessibleSearchView
-import com.ichi2.utils.TypedFilter
 import com.ichi2.utils.create
 import com.ichi2.utils.customView
 import com.ichi2.utils.negativeButton
 import com.ichi2.utils.positiveButton
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
 /**
@@ -78,9 +70,9 @@ import timber.log.Timber
 @NeedsTest("test the ordering of decks in search page in the dialog")
 @NeedsTest("test syncing the status of collapsing deck with teh deckPicker")
 class DeckSelectionDialog : AnalyticsDialogFragment() {
+    private val viewModel by viewModels<DeckSelectionViewModel>()
     private lateinit var binding: DialogDeckPickerBinding
-    private lateinit var decksAdapter: DecksArrayAdapter
-    private lateinit var decksRoot: DeckNode
+    private lateinit var decksAdapter: DeckSelectionAdapter
     private val title: String
         get() =
             requireArguments().getString(ARG_TITLE, null)
@@ -100,9 +92,20 @@ class DeckSelectionDialog : AnalyticsDialogFragment() {
             DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL)
         binding.decks.addItemDecoration(dividerItemDecoration)
         val decks: List<SelectableDeck> = getDeckNames()
-        decksAdapter = DecksArrayAdapter(decks)
+        decksAdapter =
+            DeckSelectionAdapter(
+                context = requireContext(),
+                onDeckSelected = { _, _ -> }, // ::selectDeckAndClose
+                onDeckToggleCollapse = viewModel::onToggleCollapse,
+                onDeckContextSelected = { _ -> }, // ::showSubDeckDialog
+            )
         binding.decks.adapter = decksAdapter
         setupMenu()
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.state.collect(::bindState)
+            }
+        }
         return AlertDialog.Builder(requireActivity()).create {
             negativeButton(R.string.dialog_cancel)
             customView(view = binding.root)
@@ -111,6 +114,13 @@ class DeckSelectionDialog : AnalyticsDialogFragment() {
                     onDeckSelected(null)
                 }
             }
+        }
+    }
+
+    private fun bindState(state: DeckSelectionState) {
+        // TODO handle INITIALIZATION state
+        if (state is DeckSelectionState.Data) {
+            decksAdapter.submitList(state.decks)
         }
     }
 
@@ -139,8 +149,8 @@ class DeckSelectionDialog : AnalyticsDialogFragment() {
                     return true
                 }
 
-                override fun onQueryTextChange(newText: String): Boolean {
-                    decksAdapter.filter.filter(newText)
+                override fun onQueryTextChange(query: String): Boolean {
+                    viewModel.filter(query)
                     return true
                 }
             },
@@ -201,7 +211,7 @@ class DeckSelectionDialog : AnalyticsDialogFragment() {
         onDeckSelected(deck)
         if (allowMultipleSelection) {
             if (deck is SelectableDeck.Deck) {
-                decksAdapter.removeDeck(deck.deckId)
+                // decksAdapter.removeDeck(deck.deckId)
             }
             // dismiss dialog when all decks have been selected
             if (decksAdapter.itemCount == 0) {
@@ -212,204 +222,7 @@ class DeckSelectionDialog : AnalyticsDialogFragment() {
         }
     }
 
-    open inner class DecksArrayAdapter(
-        decks: List<SelectableDeck>,
-    ) : RecyclerView.Adapter<DecksArrayAdapter.ViewHolder>(),
-        Filterable {
-        private lateinit var expandImage: Drawable
-        private lateinit var collapseImage: Drawable
-
-        val attrs =
-            intArrayOf(
-                R.attr.expandRef,
-                R.attr.collapseRef,
-            )
-
-        inner class ViewHolder(
-            private val binding: ItemDeckPickerDialogBinding,
-        ) : RecyclerView.ViewHolder(binding.root) {
-            private var currentDeck: SelectableDeck? = null
-
-            val expander: ImageButton = binding.expander
-            val indentView: ImageButton = binding.indent
-
-            fun setDeck(deck: SelectableDeck) {
-                binding.deckTextView.text = deck.getDisplayName(requireContext())
-                currentDeck = deck
-            }
-
-            init {
-                binding.root.setOnClickListener {
-                    currentDeck?.let { selectDeckAndClose(it) }
-                }
-                expander.setOnClickListener {
-                    currentDeck?.let { toggleExpansion(it) }
-                }
-                binding.root.setOnContextAndLongClickListener {
-                    // creating sub deck with parent deck path
-                    currentDeck?.let { deck ->
-                        if (deck is SelectableDeck.Deck) {
-                            showSubDeckDialog(deck)
-                        }
-                    }
-
-                    true
-                }
-            }
-
-            private fun toggleExpansion(deck: SelectableDeck) {
-                val deckId =
-                    when (deck) {
-                        is SelectableDeck.AllDecks -> return
-                        is SelectableDeck.Deck -> deck.deckId
-                    }
-                decksRoot.find(deckId)?.apply {
-                    collapsed = !collapsed
-                    Timber.d("The deck with ID $id is currently expanded: ${!collapsed}.")
-                    updateCurrentlyDisplayedDecks()
-                }
-            }
-        }
-
-        private fun updateCurrentlyDisplayedDecks() {
-            currentlyDisplayedDecks.clear()
-            currentlyDisplayedDecks.addAll(allDecksList.filter(::isViewable))
-            notifyDataSetChanged()
-        }
-
-        fun removeDeck(deckId: DeckId) {
-            val idsToRemove = mutableSetOf(deckId)
-            decksRoot.find(deckId)?.forEach { idsToRemove.add(it.did) }
-            allDecksList.removeAll { it.did in idsToRemove }
-            updateCurrentlyDisplayedDecks()
-        }
-
-        private val allDecksList = ArrayList<DeckNode>()
-        private val currentlyDisplayedDecks = ArrayList<DeckNode>()
-
-        override fun onCreateViewHolder(
-            parent: ViewGroup,
-            viewType: Int,
-        ): ViewHolder {
-            val layoutInflater = LayoutInflater.from(context)
-            val binding = ItemDeckPickerDialogBinding.inflate(layoutInflater, parent, false)
-            return ViewHolder(binding)
-        }
-
-        override fun onBindViewHolder(
-            holder: ViewHolder,
-            position: Int,
-        ) {
-            val deck = currentlyDisplayedDecks[position]
-            val isDeckViewable = isViewable(deck)
-            holder.itemView.isVisible = isDeckViewable
-            if (isDeckViewable) {
-                val model = if (deck.did == ALL_DECKS_ID) SelectableDeck.AllDecks else SelectableDeck.Deck(deck.did, deck.fullDeckName)
-                holder.setDeck(model)
-            }
-            setDeckExpander(holder.expander, holder.indentView, deck)
-        }
-
-        /**
-         * Sets the expander and indent views based on the properties of the provided DeckNode.
-         *
-         * @param expander The ImageButton used for expanding/collapsing the deck node.
-         * @param indent The ImageButton used for indenting the deck node.
-         * @param node The DeckNode representing the deck.
-         */
-        private fun setDeckExpander(
-            expander: ImageButton,
-            indent: ImageButton,
-            node: DeckNode,
-        ) {
-            if (hasSubDecks(node)) {
-                expander.apply {
-                    importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_YES
-                    setImageDrawable(if (node.collapsed) expandImage else collapseImage)
-                    contentDescription = context.getString(if (node.collapsed) R.string.expand else R.string.collapse)
-                    visibility = View.VISIBLE
-                }
-            } else {
-                expander.apply {
-                    visibility = View.INVISIBLE
-                    importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
-                }
-            }
-            indent.minimumWidth = node.depth * expander.resources.getDimensionPixelSize(R.dimen.keyline_1)
-        }
-
-        private fun hasSubDecks(node: DeckNode): Boolean = node.children.isNotEmpty()
-
-        private fun isViewable(deck: DeckNode): Boolean {
-            val parentNodeRef = deck.parent ?: return true
-            // The parent belongs to the tree retained by [allDecksList], so should still exist.
-            val parentNode = parentNodeRef.get()!!
-            return !parentNode.collapsed && isViewable(parentNode)
-        }
-
-        override fun getItemCount(): Int = currentlyDisplayedDecks.size
-
-        override fun getFilter(): Filter = DecksFilter()
-
-        private inner class DecksFilter : TypedFilter<DeckNode>(allDecksList) {
-            /**
-             * Returns all the deck nodes of [items] that contains every pattern of the constraints.
-             * In the constraints, patterns are separated by any whitespace character.
-             */
-            override fun filterResults(
-                constraint: CharSequence,
-                items: List<DeckNode>,
-            ) = DeckFilters.create(constraint).let { deckFilters ->
-                items.filter { node ->
-                    deckFilters.accept(node.fullDeckName)
-                }
-            }
-
-            override fun publishResults(
-                constraint: CharSequence?,
-                results: List<DeckNode>,
-            ) {
-                results.forEach { it.collapsed = false }
-                currentlyDisplayedDecks.apply {
-                    clear()
-                    addAll(results)
-                }
-                notifyDataSetChanged()
-            }
-        }
-
-        init {
-            requireContext().obtainStyledAttributes(attrs).use { typedArray ->
-                expandImage = typedArray.getDrawableOrThrow(0)
-                expandImage.isAutoMirrored = true
-                collapseImage = typedArray.getDrawableOrThrow(1)
-                collapseImage.isAutoMirrored = true
-            }
-
-            launchCatchingTask {
-                decksRoot = withCol { Pair(sched.deckDueTree(), isEmpty) }.first
-                val allDecksSet =
-                    decks
-                        .mapNotNull { it as? SelectableDeck.Deck }
-                        .mapNotNull { decksRoot.find(it.deckId) }
-                        .toSet()
-                if (decks.any { it is SelectableDeck.AllDecks }) {
-                    val newDeckNode =
-                        deckTreeNode {
-                            deckId = ALL_DECKS_ID
-                            name = "all"
-                        }
-                    allDecksList.add(DeckNode(newDeckNode, getString(R.string.card_browser_all_decks), null))
-                }
-
-                allDecksList.addAll(allDecksSet)
-                updateCurrentlyDisplayedDecks()
-            }
-        }
-    }
-
     // TODO: allow filtering to SelectableDeck.Deck, excluding 'AllDecks'
-
     companion object {
         const val TAG = "DeckSelectionDialog"
         const val REQUEST_SELECT_DECK = "request_select_deck"
@@ -420,7 +233,7 @@ class DeckSelectionDialog : AnalyticsDialogFragment() {
         const val ARG_SKIP_EMPTY_DEFAULT = "arg_skip_empty_default"
         private const val ARG_TITLE = "arg_title"
         private const val ARG_TEMPLATE_EDITOR_MESSAGE = "arg_template_editor_message"
-        private const val DECK_NAMES = "deckNames"
+        const val DECK_NAMES = "deckNames"
         private const val ARG_ALLOW_MULTIPLE_SELECTION = "arg_allow_multiple_selection"
 
         /** Creates a new instance of [DeckSelectionDialog]. */
