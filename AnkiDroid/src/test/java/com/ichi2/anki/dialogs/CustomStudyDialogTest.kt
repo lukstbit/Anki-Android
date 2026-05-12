@@ -23,6 +23,9 @@ import com.ichi2.anki.CollectionManager
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.R
 import com.ichi2.anki.RobolectricTest
+import com.ichi2.anki.dialogs.customstudy.CustomStudyCardState
+import com.ichi2.anki.dialogs.customstudy.CustomStudyDefaults
+import com.ichi2.anki.dialogs.customstudy.CustomStudyDefaults.Companion.toDomainModel
 import com.ichi2.anki.dialogs.customstudy.CustomStudyDialog
 import com.ichi2.anki.dialogs.customstudy.CustomStudyDialog.ContextMenuOption
 import com.ichi2.anki.dialogs.customstudy.CustomStudyDialog.CustomStudyDefaults.Companion.toDomainModel
@@ -70,7 +73,7 @@ class CustomStudyDialogTest : RobolectricTest() {
     @Test
     fun `new custom study decks have expected structure - issue 6289`() =
         runTest {
-            val studyType = ContextMenuOption.STUDY_PREVIEW
+            val studyType = CustomStudyOption.STUDY_PREVIEW
             // we need a non-empty deck to custom study
             addBasicNote()
 
@@ -129,7 +132,7 @@ class CustomStudyDialogTest : RobolectricTest() {
 
         // extend limits with a value of '1'
         withCustomStudyFragment(
-            args = argumentsDisplayingSubscreen(ContextMenuOption.EXTEND_NEW),
+            args = argumentsDisplayingSubscreen(CustomStudyOption.EXTEND_NEW),
         ) { dialogFragment: CustomStudyDialog ->
 
             onSubscreenEditText()
@@ -147,7 +150,7 @@ class CustomStudyDialogTest : RobolectricTest() {
 
         // ensure 'newExtendByValue' is used by our UI
         withCustomStudyFragment(
-            args = argumentsDisplayingSubscreen(ContextMenuOption.EXTEND_NEW),
+            args = argumentsDisplayingSubscreen(CustomStudyOption.EXTEND_NEW),
         ) {
             onSubscreenEditText()
                 .check(matches(withText(newExtendByValue.toString())))
@@ -165,7 +168,7 @@ class CustomStudyDialogTest : RobolectricTest() {
 
         // Extend reviews by 'reviewExtendByValue'.
         withCustomStudyFragment(
-            args = argumentsDisplayingSubscreen(ContextMenuOption.EXTEND_REV),
+            args = argumentsDisplayingSubscreen(CustomStudyOption.EXTEND_REV),
         ) { dialogFragment: CustomStudyDialog ->
             onSubscreenEditText()
                 .perform(replaceText(reviewExtendByValue.toString()))
@@ -181,7 +184,7 @@ class CustomStudyDialogTest : RobolectricTest() {
 
         // Ensure 'reviewExtendByValue' is used in our UI.
         withCustomStudyFragment(
-            args = argumentsDisplayingSubscreen(ContextMenuOption.EXTEND_REV),
+            args = argumentsDisplayingSubscreen(CustomStudyOption.EXTEND_REV),
         ) {
             onSubscreenEditText()
                 .check(matches(withText(reviewExtendByValue.toString())))
@@ -208,14 +211,14 @@ class CustomStudyDialogTest : RobolectricTest() {
             assertThat(dueNow[0], equalTo(n3.firstCard().id))
             // make sure there isn't a 'Custom Study Session' already present
             assertNull(col.decks.customStudySession)
-            val args = argumentsDisplayingSubscreen(ContextMenuOption.STUDY_TAGS, deckId = testDeckId)
+            val args = argumentsDisplayingSubscreen(CustomStudyOption.STUDY_TAGS, deckId = testDeckId)
             withCustomStudyFragment(args = args) { studyDialog ->
                 val d = studyDialog.dialog
                 assertNotNull(d)
                 // the first item is automatically selected at start
                 assertThat(studyDialog.viewModel.selectedCardStateIndex, equalTo(0))
 
-                studyDialog.setCardStateSelectionTo(CustomStudyDialog.CustomStudyCardState.DueCardsOnly)
+                studyDialog.setCardStateSelectionTo(CustomStudyCardState.DueCardsOnly)
 
                 // create list of selected tags
                 // Note: using an ArrayList because that is how it's stored in the passed Bundle
@@ -299,7 +302,7 @@ class CustomStudyDialogTest : RobolectricTest() {
 
     @Test
     fun `subscreens are ignored when restoring from process death`() {
-        withCustomStudyFragment(args = argumentsDisplayingSubscreen(ContextMenuOption.EXTEND_REV, restoreFromProcessDeath = true)) {
+        withCustomStudyFragment(args = argumentsDisplayingSubscreen(CustomStudyOption.EXTEND_REV, restoreFromProcessDeath = true)) {
             // ensure we're on the main screen
             onView(withText(TR.customStudyIncreaseTodaysReviewCardLimit()))
                 .inRoot(isDialog())
@@ -490,7 +493,7 @@ class CustomStudyDialogTest : RobolectricTest() {
         }
 
     private fun argumentsDisplayingSubscreen(
-        subscreen: ContextMenuOption,
+        subscreen: CustomStudyOption,
         deckId: DeckId = Consts.DEFAULT_DECK_ID,
         restoreFromProcessDeath: Boolean = false,
     ): Bundle {
@@ -530,12 +533,12 @@ class CustomStudyDialogTest : RobolectricTest() {
         }
 
     /** Set the card state to [state] and also verify the selection in the fragment's ViewModel */
-    private fun CustomStudyDialog.setCardStateSelectionTo(state: CustomStudyDialog.CustomStudyCardState) {
+    private fun CustomStudyDialog.setCardStateSelectionTo(state: CustomStudyCardState) {
         assertThat(
             state.ordinal,
             allOf(
                 greaterThanOrEqualTo(0),
-                lessThan(CustomStudyDialog.CustomStudyCardState.entries.size),
+                lessThan(CustomStudyCardState.entries.size),
             ),
         )
         // can't use MaterialAutoCompleteTextView.listSelection as the popup is closed and updates
@@ -548,7 +551,7 @@ class CustomStudyDialogTest : RobolectricTest() {
     }
 
     /**
-     * The current backend value of [CustomStudyDialog.CustomStudyDefaults] for the default deck
+     * The current backend value of [CustomStudyDefaults] for the default deck
      * */
     private val defaultsOfDefaultDeck
         get() = col.sched.customStudyDefaults(Consts.DEFAULT_DECK_ID).toDomainModel()
