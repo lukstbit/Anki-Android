@@ -100,7 +100,7 @@ class CardAnalysisWidget : AnalyticsWidgetProvider() {
                 if (deckData == null) {
                     // The deck was found but no data could be fetched, so update the preferences to remove the deck.
                     // This ensures that the widget does not retain a reference to a non-existent or invalid deck.
-                    CardAnalysisWidgetPreferences(context).saveSelectedDeck(appWidgetId, NOT_FOUND_DECK_ID)
+                    CardAnalysisWidgetPreferences.newInstance(context).save(appWidgetId, NOT_FOUND_DECK_ID)
                     showMissingDeck(context, appWidgetManager, appWidgetId, remoteViews)
                     return@launch
                 }
@@ -112,8 +112,8 @@ class CardAnalysisWidget : AnalyticsWidgetProvider() {
             context: Context,
             appWidgetId: AppWidgetId,
         ): DeckId {
-            val widgetPreferences = CardAnalysisWidgetPreferences(context)
-            return widgetPreferences.getSelectedDeckIdFromPreferences(appWidgetId) ?: NOT_FOUND_DECK_ID
+            val widgetPreferences = CardAnalysisWidgetPreferences.newInstance(context)
+            return widgetPreferences.get(appWidgetId) ?: NOT_FOUND_DECK_ID
         }
 
         private fun showCollectionDeck(
@@ -274,7 +274,7 @@ class CardAnalysisWidget : AnalyticsWidgetProvider() {
     ) {
         super.onReceive(context, intent)
 
-        val widgetPreferences = CardAnalysisWidgetPreferences(context)
+        val widgetPreferences = CardAnalysisWidgetPreferences.newInstance(context)
 
         when (intent.action) {
             ACTION_APPWIDGET_UPDATE -> {
@@ -314,7 +314,7 @@ class CardAnalysisWidget : AnalyticsWidgetProvider() {
                 if (appWidgetId != INVALID_APPWIDGET_ID) {
                     Timber.d("Deleting widget with ID: $appWidgetId")
                     cancelRecurringAlarm(context, appWidgetId, CardAnalysisWidget::class.java)
-                    widgetPreferences.deleteDeckData(appWidgetId)
+                    widgetPreferences.delete(appWidgetId)
                 } else {
                     Timber.e("Invalid widget ID received in ACTION_APPWIDGET_DELETED")
                 }
@@ -345,11 +345,11 @@ class CardAnalysisWidget : AnalyticsWidgetProvider() {
             return
         }
 
-        val widgetPreferences = CardAnalysisWidgetPreferences(context)
+        val widgetPreferences = CardAnalysisWidgetPreferences.newInstance(context)
 
         AppWidgetIds.of(appWidgetIds)?.forEach { appWidgetId ->
             cancelRecurringAlarm(context, appWidgetId, CardAnalysisWidget::class.java)
-            widgetPreferences.deleteDeckData(appWidgetId)
+            widgetPreferences.delete(appWidgetId)
         }
     }
 }

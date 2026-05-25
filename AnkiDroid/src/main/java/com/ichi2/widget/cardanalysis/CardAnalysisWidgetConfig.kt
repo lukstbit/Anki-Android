@@ -75,7 +75,7 @@ class CardAnalysisWidgetConfig : AnkiActivity(R.layout.activity_card_analysis_wi
             return
         }
 
-        preferences = CardAnalysisWidgetPreferences(this)
+        preferences = CardAnalysisWidgetPreferences.newInstance(this)
         appWidgetId = intent.getAppWidgetId()
         if (appWidgetId == INVALID_APPWIDGET_ID) {
             Timber.v("Invalid App Widget ID")
@@ -124,7 +124,7 @@ class CardAnalysisWidgetConfig : AnkiActivity(R.layout.activity_card_analysis_wi
         val shouldClose = this.deck == null
         this.deck = deck
         binding.deckName.text = deck.name
-        preferences.saveSelectedDeck(appWidgetId, deck.deckId)
+        preferences.save(appWidgetId, deck.deckId)
         updateWidget()
         if (shouldClose) {
             close()
@@ -144,7 +144,7 @@ class CardAnalysisWidgetConfig : AnkiActivity(R.layout.activity_card_analysis_wi
                     finish()
                     return@withProgress
                 }
-                val selectedDeckId = preferences.getSelectedDeckIdFromPreferences(appWidgetId)
+                val selectedDeckId = preferences.get(appWidgetId)
                 if (selectedDeckId == null) {
                     showDeckSelectionDialog()
                 } else {
@@ -199,7 +199,7 @@ class CardAnalysisWidgetConfig : AnkiActivity(R.layout.activity_card_analysis_wi
                     return
                 }
 
-                preferences.deleteDeckData(appWidgetId)
+                preferences.delete(appWidgetId)
             }
         }
 

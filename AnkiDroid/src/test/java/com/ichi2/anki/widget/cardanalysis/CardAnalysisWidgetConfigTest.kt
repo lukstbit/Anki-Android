@@ -96,7 +96,7 @@ class CardAnalysisWidgetConfigTest : RobolectricTest() {
             onView(withText(TEST_DECK_NAME1)).inRoot(isDialog()).perform(click())
             // check if UI shows the selected deck and if it was saved in preferences
             onView(withId(R.id.deck_name)).check(matches(withText(TEST_DECK_NAME1)))
-            assertEquals(testDeckId, preferences.getSelectedDeckIdFromPreferences(testWidgetId))
+            assertEquals(testDeckId, preferences.get(testWidgetId))
             // the activity is closed on first deck selection
             assertTrue(activity.isFinishing)
         }
@@ -105,7 +105,7 @@ class CardAnalysisWidgetConfigTest : RobolectricTest() {
     fun `ui is updated based on user deck selection`() =
         runTest {
             val testDeck1Id = addDeck(TEST_DECK_NAME1)
-            preferences.saveSelectedDeck(testWidgetId, testDeck1Id)
+            preferences.save(testWidgetId, testDeck1Id)
             val testDeck2Id = addDeck(TEST_DECK_NAME2)
             startTestActivity()
             advanceUntilIdle()
@@ -118,7 +118,7 @@ class CardAnalysisWidgetConfigTest : RobolectricTest() {
             // set configuration as done
             onView(withId(R.id.done_btn)).perform(click())
             // check that the correct deck is saved in preferences
-            assertEquals(testDeck2Id, preferences.getSelectedDeckIdFromPreferences(testWidgetId))
+            assertEquals(testDeck2Id, preferences.get(testWidgetId))
         }
 
     @Test
@@ -135,14 +135,14 @@ class CardAnalysisWidgetConfigTest : RobolectricTest() {
             // set configuration as done
             onView(withId(R.id.done_btn)).perform(click())
             // no deck selected so there shouldn't be any deck saved in preferences
-            assertNull(preferences.getSelectedDeckIdFromPreferences(testWidgetId))
+            assertNull(preferences.get(testWidgetId))
         }
 
     @Test
     fun `handles widget removal while configuring`() =
         runTest {
             val testDeckId = addDeck(TEST_DECK_NAME1)
-            preferences.saveSelectedDeck(testWidgetId, testDeckId)
+            preferences.save(testWidgetId, testDeckId)
 
             startTestActivity()
             advanceUntilIdle()
@@ -154,7 +154,7 @@ class CardAnalysisWidgetConfigTest : RobolectricTest() {
             targetContext.sendBroadcast(deleteWidgetIntent)
             ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
             // check that the previous preferences data is deleted
-            assertNull(preferences.getSelectedDeckIdFromPreferences(testWidgetId))
+            assertNull(preferences.get(testWidgetId))
         }
 
     @Test
@@ -162,7 +162,7 @@ class CardAnalysisWidgetConfigTest : RobolectricTest() {
         runTest {
             val testDeck1Id = addDeck(TEST_DECK_NAME1)
             val testDeck2Id = addDeck(TEST_DECK_NAME2)
-            preferences.saveSelectedDeck(testWidgetId, testDeck1Id)
+            preferences.save(testWidgetId, testDeck1Id)
             val activity = startTestActivity()
             advanceUntilIdle()
             // verify that deck 1 is selected
@@ -178,7 +178,7 @@ class CardAnalysisWidgetConfigTest : RobolectricTest() {
             // click done
             onView(withId(R.id.done_btn)).perform(click())
             // check that the last selected deck is saved in preferences
-            assertEquals(testDeck2Id, preferences.getSelectedDeckIdFromPreferences(testWidgetId))
+            assertEquals(testDeck2Id, preferences.get(testWidgetId))
         }
 
     private fun startTestActivity(
