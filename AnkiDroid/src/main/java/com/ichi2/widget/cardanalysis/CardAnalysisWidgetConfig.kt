@@ -23,6 +23,9 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
 import androidx.core.os.BundleCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.ichi2.anki.AnkiActivity
 import com.ichi2.anki.R
 import com.ichi2.anki.android.AnkiBroadcastReceiver
@@ -39,6 +42,7 @@ import com.ichi2.widget.AppWidgetId.Companion.INVALID_APPWIDGET_ID
 import com.ichi2.widget.AppWidgetId.Companion.getAppWidgetId
 import com.ichi2.widget.cardanalysis.CardAnalysisWidget.Companion.EXTRA_SELECTED_DECK_ID
 import dev.androidbroadcast.vbpd.viewBinding
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
 /**
@@ -59,10 +63,10 @@ import timber.log.Timber
  * @see CardAnalysisWidgetPreferences
  */
 class CardAnalysisWidgetConfig : AnkiActivity(R.layout.activity_card_analysis_widget_config) {
+    private lateinit var viewModel: CardAnalysisWidgetConfigViewModel
     private val binding by viewBinding(ActivityCardAnalysisWidgetConfigBinding::bind)
 
     private var appWidgetId = INVALID_APPWIDGET_ID
-    private var deck: SelectableDeck.Deck? = null
     private lateinit var preferences: CardAnalysisWidgetPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -82,17 +86,6 @@ class CardAnalysisWidgetConfig : AnkiActivity(R.layout.activity_card_analysis_wi
             finish()
             return
         }
-        if (savedInstanceState != null) {
-            deck =
-                BundleCompat.getParcelable(
-                    savedInstanceState,
-                    KEY_DECK,
-                    SelectableDeck.Deck::class.java,
-                )
-            binding.deckName.text = deck?.name
-        } else {
-            loadContent()
-        }
         binding.changeBtn.setOnClickListener { showDeckSelectionDialog() }
         binding.doneBtn.setOnClickListener { close() }
         registerReceiver(
@@ -100,11 +93,11 @@ class CardAnalysisWidgetConfig : AnkiActivity(R.layout.activity_card_analysis_wi
             IntentFilter(AppWidgetManager.ACTION_APPWIDGET_DELETED),
         )
         registerDeckSelectedHandler(action = ::onDeckSelected)
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putParcelable(KEY_DECK, deck)
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.state.collect(::bindState)
+            }
+        }
     }
 
     override fun onDestroy() {
@@ -121,17 +114,10 @@ class CardAnalysisWidgetConfig : AnkiActivity(R.layout.activity_card_analysis_wi
         }
         // if the deck was null before the selection then the widget was just added so update the
         // widget and finish
-        val shouldClose = this.deck == null
-        this.deck = deck
-        binding.deckName.text = deck.name
-        preferences.save(appWidgetId, deck.deckId)
-        updateWidget()
-        if (shouldClose) {
-            close()
-        }
+        viewModel.select(deck)
     }
 
-    private fun loadContent() {
+    private fun bindState(state: CardAnalysisWidgetConfigState) {
         launchCatchingTask {
             withProgress {
                 if (isCollectionEmpty()) {
