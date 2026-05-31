@@ -84,7 +84,7 @@ import kotlin.test.junit.JUnitAsserter.assertNotNull
  *
  * These tests should cover all supported operations for each URI.
  */
-class ContentProviderTest : InstrumentedTest() {
+class DecksWidgetConfigStateProviderTest : InstrumentedTest() {
     @get:Rule
     var runtimePermissionRule = grantPermissions(storagePermission, FlashCardsContract.READ_WRITE_PERMISSION)
 

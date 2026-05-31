@@ -37,7 +37,7 @@ import org.robolectric.annotation.Config
 @RunWith(AndroidJUnit4::class) // needs a URI instance
 @Config(application = EmptyApplication::class)
 @Category(EmptyApplicationCategory::class)
-class ContentResolverUtilTest {
+class DecksWidgetConfigStateResolverUtilTest {
     @Test
     fun testViaQueryWorking() {
         val uri = "http://example.com/test.jpeg".toUri()
