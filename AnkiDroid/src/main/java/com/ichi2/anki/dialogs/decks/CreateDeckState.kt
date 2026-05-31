@@ -17,22 +17,15 @@
 package com.ichi2.anki.dialogs.decks
 
 import android.os.Parcelable
+import androidx.compose.runtime.Immutable
 import kotlinx.parcelize.Parcelize
 
 /** Represents the state data rendered by [CreateDeckDialogFragment] */
+@Immutable
 data class CreateDeckState(
     val isInitializing: Boolean = true,
-    val input: String = "",
     val inputError: CreateDeckInputError? = null,
-    /**
-     * One time flag used to signal that EditText input setup can be initiated. Needed as we start
-     * with the input disabled and as the data is loaded it needs to be focused(shows keyboard) and
-     * to also place the cursor accounting for the initial name being present when renaming.
-     */
-    val shouldFocus: Boolean = false,
     val showDoubleDigitsHelp: Boolean = false,
-    /** Unrecoverable error(during initialization) after which the dialog should dismiss itself */
-    val fatalError: Throwable? = null,
 )
 
 enum class CreateDeckInputError {
@@ -49,4 +42,4 @@ enum class CreateDeckType : Parcelable {
 }
 
 val CreateDeckState.isInputValid: Boolean
-    get() = !isInitializing && input.isNotEmpty() && inputError == null
+    get() = TODO() // !isInitializing && input.isNotEmpty() && inputError == null

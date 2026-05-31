@@ -18,20 +18,20 @@ package com.ichi2.anki.dialogs.decks
 
 import android.app.Dialog
 import android.os.Bundle
-import android.view.KeyEvent
-import android.view.inputmethod.EditorInfo
 import androidx.appcompat.app.AlertDialog
-import androidx.core.view.isVisible
-import androidx.core.widget.doAfterTextChanged
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.R
 import com.ichi2.anki.databinding.FragmentCreateDeckBinding
 import com.ichi2.anki.dialogs.decks.CreateDeckDialogFragment.Companion.ARG_DECK_ID
@@ -39,13 +39,10 @@ import com.ichi2.anki.dialogs.decks.CreateDeckDialogFragment.Companion.ARG_NAME
 import com.ichi2.anki.dialogs.decks.CreateDeckDialogFragment.Companion.ARG_TYPE
 import com.ichi2.anki.dialogs.decks.CreateDeckDialogFragment.Companion.TAG
 import com.ichi2.anki.libanki.DeckId
-import com.ichi2.anki.snackbar.showSnackbar
 import com.ichi2.anki.utils.ext.getLongOrNull
 import com.ichi2.anki.utils.ext.requireParcelable
 import com.ichi2.anki.utils.ext.requireString
-import com.ichi2.utils.AndroidUiUtils
 import com.ichi2.utils.cancelable
-import com.ichi2.utils.moveCursorToEnd
 import com.ichi2.utils.negativeButton
 import com.ichi2.utils.positiveButton
 import com.ichi2.utils.show
@@ -63,33 +60,57 @@ class CreateDeckDialogFragment : DialogFragment() {
     private val type: CreateDeckType
         get() = requireArguments().requireParcelable<CreateDeckType>(ARG_TYPE)
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        ViewCompositionStrategy.DisposeOnLifecycleDestroyed(this)
+    }
+
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val binding = FragmentCreateDeckBinding.inflate(layoutInflater)
-        binding.textInput.apply {
-            doAfterTextChanged { text ->
-                if (text != null && text.toString() != viewModel.state.value.input) {
-                    viewModel.onInputChanged(text.toString())
+        binding.composeView.apply {
+            setContent {
+                val state by viewModel.state.collectAsStateWithLifecycle()
+                val inputErrorMessage by remember {
+                    derivedStateOf {
+                        when (state.inputError) {
+                            CreateDeckInputError.Empty -> getString(R.string.toast_empty_name)
+                            CreateDeckInputError.AlreadyExists -> getString(R.string.error_name_exists)
+                            null -> null
+                        }
+                    }
                 }
-            }
-            hint =
-                when (type) {
-                    CreateDeckType.Deck, CreateDeckType.Subdeck ->
-                        TR
-                            .actionsName()
-                            .dropLastWhile { it == ':' }
-
-                    CreateDeckType.Rename -> TR.actionsNewName().dropLastWhile { it == ':' }
-                }
-            setOnEditorActionListener { _, actionId, event ->
-                if (viewModel.state.value.isInitializing) return@setOnEditorActionListener false
-                if (actionId == EditorInfo.IME_ACTION_DONE || event?.keyCode == KeyEvent.KEYCODE_ENTER) {
-                    onConfirm()
-                    true
-                } else {
-                    false
-                }
+                CreateDeckDialogContent(
+                    inputState = viewModel.inputState,
+                    isInitializing = state.isInitializing,
+                    inputErrorMessage = inputErrorMessage,
+                )
             }
         }
+//        binding.textInput.apply {
+//            doAfterTextChanged { text ->
+//                if (text != null && text.toString() != viewModel.state.value.input) {
+//                    viewModel.onInputChanged(text.toString())
+//                }
+//            }
+//            hint =
+//                when (type) {
+//                    CreateDeckType.Deck, CreateDeckType.Subdeck ->
+//                        TR
+//                            .actionsName()
+//                            .dropLastWhile { it == ':' }
+//
+//                    CreateDeckType.Rename -> TR.actionsNewName().dropLastWhile { it == ':' }
+//                }
+//            setOnEditorActionListener { _, actionId, event ->
+//                if (viewModel.state.value.isInitializing) return@setOnEditorActionListener false
+//                if (actionId == EditorInfo.IME_ACTION_DONE || event?.keyCode == KeyEvent.KEYCODE_ENTER) {
+//                    onConfirm()
+//                    true
+//                } else {
+//                    false
+//                }
+//            }
+//        }
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.state.collect { state -> binding.bindState(state) }
@@ -97,7 +118,7 @@ class CreateDeckDialogFragment : DialogFragment() {
         }
         val title =
             when (type) {
-                CreateDeckType.Deck -> getString(R.string.new_deck)
+                CreateDeckType.Deck -> "New deck"
                 CreateDeckType.Subdeck -> getString(R.string.create_subdeck)
                 CreateDeckType.Rename -> getString(R.string.rename_deck)
             }
@@ -132,33 +153,33 @@ class CreateDeckDialogFragment : DialogFragment() {
     }
 
     private fun FragmentCreateDeckBinding.bindState(state: CreateDeckState) {
-        if (state.fatalError != null) {
-            // initialization has failed, nothing to do but exit
-            requireActivity().showSnackbar(R.string.something_wrong)
-            dismiss()
-            return
-        }
-        loadingIndicator.isVisible = state.isInitializing
-        if (state.shouldFocus) {
-            textInput.isEnabled = true
-            // set the text one time because we might be renaming and in this case we have something
-            // to show
-            textInput.setText(state.input)
-            textInput.moveCursorToEnd()
-            AndroidUiUtils.setFocusAndOpenKeyboard(textInput)
-            viewModel.clearFocusRequest()
-        }
-        // Note: when helperText and error are both set, the last set one wins and is displayed while
-        // the other text it's just briefly shown and then hidden, error is more important
-        textInputLayout.helperText =
-            if (state.showDoubleDigitsHelp) getString(R.string.create_deck_numeric_hint) else null
-        textInputLayout.error =
-            when (state.inputError) {
-                CreateDeckInputError.Empty -> getString(R.string.toast_empty_name)
-                CreateDeckInputError.AlreadyExists -> getString(R.string.error_name_exists)
-                null -> null
-            }
-        (dialog as? AlertDialog)?.positiveButton?.isEnabled = state.isInputValid
+//        if (state.fatalError != null) {
+//            // initialization has failed, nothing to do but exit
+//            requireActivity().showSnackbar(R.string.something_wrong)
+//            dismiss()
+//            return
+//        }
+//        loadingIndicator.isVisible = state.isInitializing
+//        if (state.shouldFocus) {
+//            textInput.isEnabled = true
+//            // set the text one time because we might be renaming and in this case we have something
+//            // to show
+//            textInput.setText(state.input)
+//            textInput.moveCursorToEnd()
+//            AndroidUiUtils.setFocusAndOpenKeyboard(textInput)
+//            viewModel.clearFocusRequest()
+//        }
+//        // Note: when helperText and error are both set, the last set one wins and is displayed while
+//        // the other text it's just briefly shown and then hidden, error is more important
+//        textInputLayout.helperText =
+//            if (state.showDoubleDigitsHelp) getString(R.string.create_deck_numeric_hint) else null
+//        textInputLayout.error =
+//            when (state.inputError) {
+//                CreateDeckInputError.Empty -> getString(R.string.toast_empty_name)
+//                CreateDeckInputError.AlreadyExists -> getString(R.string.error_name_exists)
+//                null -> null
+//            }
+//        (dialog as? AlertDialog)?.positiveButton?.isEnabled = state.isInputValid
     }
 
     companion object {

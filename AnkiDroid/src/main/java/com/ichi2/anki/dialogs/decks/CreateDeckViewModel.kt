@@ -16,6 +16,7 @@
 
 package com.ichi2.anki.dialogs.decks
 
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -26,6 +27,7 @@ import com.ichi2.anki.libanki.DeckId
 import com.ichi2.anki.libanki.DeckNameId
 import com.ichi2.anki.libanki.Decks
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -35,17 +37,19 @@ import timber.log.Timber
 class CreateDeckViewModel(
     private val savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
+    val inputState = TextFieldState()
     val state: StateFlow<CreateDeckState>
         field = MutableStateFlow(CreateDeckState())
 
     /** The full deck name after the user input */
     val fullDeckName: String
-        get() =
-            if (type == CreateDeckType.Subdeck) {
-                "$parentName${Decks.DECK_SEPARATOR}${state.value.input}"
-            } else {
-                state.value.input
-            }
+        get() = TODO()
+
+//            if (type == CreateDeckType.Subdeck) {
+//                "$parentName${Decks.DECK_SEPARATOR}${state.value.input}"
+//            } else {
+//                state.value.input
+//            }
     private val type: CreateDeckType
         get() = requireNotNull(savedStateHandle.get<CreateDeckType>(ARG_TYPE))
     private val deckId: DeckId?
@@ -62,6 +66,7 @@ class CreateDeckViewModel(
         viewModelScope.launch {
             state.update { it.copy(isInitializing = true) }
             try {
+                delay(4000)
                 backendDecks =
                     withCol {
                         decks.allNamesAndIds()
@@ -77,27 +82,24 @@ class CreateDeckViewModel(
                 state.update {
                     it.copy(
                         isInitializing = false,
-                        shouldFocus = true,
-                        input = currentName ?: "",
                     )
                 }
             } catch (ex: CancellationException) {
                 throw ex
             } catch (ex: Exception) {
-                state.update { it.copy(fatalError = ex) }
+                // state.update { it.copy(fatalError = ex) }
             }
         }
     }
 
     fun onInputChanged(text: String) {
-        if (text == state.value.input) return
+        // if (text == state.value.input) return
         Timber.d("CreateDeckViewModel::Input changed")
         val showDoubleDigitsHelp = text.containsNumberLargerThanNine()
         val inputError = verifyInput(text)
         state.update {
             it.copy(
                 isInitializing = false,
-                input = text,
                 inputError = inputError,
                 showDoubleDigitsHelp = showDoubleDigitsHelp,
             )
@@ -126,7 +128,7 @@ class CreateDeckViewModel(
     }
 
     fun clearFocusRequest() {
-        state.update { it.copy(shouldFocus = false) }
+        // state.update { it.copy(shouldFocus = false) }
     }
 
     private fun isNameAlreadyUsed(name: String): Boolean = backendDecks.map { it.name }.any { it == name }
