@@ -671,8 +671,6 @@ class CardBrowserFragment :
                     }
                     menu.findItem(R.id.action_suspend_card).apply {
                         title = TR.sentenceCase.toggleSuspend
-                        // TODO: I don't think this icon is necessary
-                        setIcon(R.drawable.ic_suspend)
                         isVisible = vm.hasSelectedAnyRows()
                     }
                     menu.findItem(R.id.action_toggle_bury).apply {
