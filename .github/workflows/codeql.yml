@@ -86,7 +86,7 @@ jobs:
     # AnkiDroid requires JDK21+ to build, current runners default to 17
     - name: Configure JDK
       if: matrix.language == 'java-kotlin'
-      uses: actions/setup-java@v5
+      uses: actions/setup-java@v6
       with:
         distribution: "temurin"
         java-version: "21"  # also change jitpack.yml
