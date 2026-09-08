@@ -148,9 +148,7 @@ import com.ichi2.anki.dialogs.SchedulerUpgradeDialog
 import com.ichi2.anki.dialogs.SyncErrorDialog
 import com.ichi2.anki.dialogs.SyncErrorDialog.Companion.newInstance
 import com.ichi2.anki.dialogs.SyncErrorDialog.SyncErrorDialogListener
-import com.ichi2.anki.dialogs.customstudy.CustomStudyDialog
-import com.ichi2.anki.dialogs.customstudy.CustomStudyDialog.CustomStudyAction
-import com.ichi2.anki.dialogs.customstudy.CustomStudyDialog.CustomStudyAction.Companion.REQUEST_KEY
+import com.ichi2.anki.dialogs.customstudy.CustomStudyFragment
 import com.ichi2.anki.dialogs.setDeckPickerContextMenuResultListener
 import com.ichi2.anki.export.ExportDialogFragment
 import com.ichi2.anki.filtered.FilteredDeckOptionsFragment
@@ -187,7 +185,6 @@ import com.ichi2.anki.utils.ext.dismissAllDialogFragments
 import com.ichi2.anki.utils.ext.doOnScrolled
 import com.ichi2.anki.utils.ext.launchCollectionInLifecycleScope
 import com.ichi2.anki.utils.ext.positionIsVisible
-import com.ichi2.anki.utils.ext.setFragmentResultListener
 import com.ichi2.anki.utils.ext.setImageDrawableSafe
 import com.ichi2.anki.utils.ext.showDialogFragment
 import com.ichi2.anki.widgets.DeckAdapter
@@ -583,20 +580,20 @@ open class DeckPicker :
         // (ex. on app boot, when the app opened, etc.), inform the user via a dialog
         ReviewRemindersDatabase.checkDeserializationErrors(this)
 
-        setFragmentResultListener(REQUEST_KEY) { _, bundle ->
-            when (CustomStudyAction.fromBundle(bundle)) {
-                CustomStudyAction.CUSTOM_STUDY_SESSION -> {
-                    Timber.d("Custom study created")
-                    updateDeckList()
-                    openStudyOptions()
-                }
-                CustomStudyAction.EXTEND_STUDY_LIMITS -> {
-                    Timber.d("Study limits updated")
-                    fragment?.refreshInterface()
-                    updateDeckList()
-                }
-            }
-        }
+//        setFragmentResultListener(REQUEST_KEY) { _, bundle ->
+//            when (CustomStudyAction.fromBundle(bundle)) {
+//                CustomStudyAction.CUSTOM_STUDY_SESSION -> {
+//                    Timber.d("Custom study created")
+//                    updateDeckList()
+//                    openStudyOptions()
+//                }
+//                CustomStudyAction.EXTEND_STUDY_LIMITS -> {
+//                    Timber.d("Study limits updated")
+//                    fragment?.refreshInterface()
+//                    updateDeckList()
+//                }
+//            }
+//        }
 
         setDeckPickerContextMenuResultListener { result ->
             handleContextMenuSelection(result.option, result.deckId)
@@ -978,7 +975,9 @@ open class DeckPicker :
             }
             DeckPickerContextMenuOption.CUSTOM_STUDY -> {
                 Timber.i("ContextMenu: Custom study option selected")
-                showDialogFragment(CustomStudyDialog.createInstance(deckId))
+                val intent = CustomStudyFragment.getIntent(this, deckId)
+                startActivity(intent)
+                // showDialogFragment(CustomStudyDialog.createInstance(deckId))
             }
             DeckPickerContextMenuOption.CREATE_SHORTCUT -> {
                 Timber.i("ContextMenu: Create icon for a deck")

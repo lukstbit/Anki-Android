@@ -9,7 +9,6 @@ import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.FragmentActivity
-import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModel
@@ -33,8 +32,6 @@ import com.ichi2.anki.common.time.SECONDS_PER_DAY
 import com.ichi2.anki.common.time.TIME_HOUR
 import com.ichi2.anki.common.time.TIME_MINUTE
 import com.ichi2.anki.common.utils.android.showThemedToast
-import com.ichi2.anki.dialogs.customstudy.CustomStudyDialog
-import com.ichi2.anki.dialogs.customstudy.CustomStudyDialog.CustomStudyAction
 import com.ichi2.anki.launchCatchingIO
 import com.ichi2.anki.launchCatchingTask
 import com.ichi2.anki.observability.ChangeManager
@@ -161,13 +158,13 @@ class CongratsPage :
             }
         }
 
-        setFragmentResultListener(CustomStudyAction.REQUEST_KEY) { _, bundle ->
-            when (CustomStudyAction.fromBundle(bundle)) {
-                CustomStudyAction.CUSTOM_STUDY_SESSION,
-                CustomStudyAction.EXTEND_STUDY_LIMITS,
-                -> openStudyOptionsAndFinish()
-            }
-        }
+//        setFragmentResultListener(CustomStudyAction.REQUEST_KEY) { _, bundle ->
+//            when (CustomStudyAction.fromBundle(bundle)) {
+//                CustomStudyAction.CUSTOM_STUDY_SESSION,
+//                CustomStudyAction.EXTEND_STUDY_LIMITS,
+//                -> openStudyOptionsAndFinish()
+//            }
+//        }
     }
 
     override val bridgeCommands =
@@ -183,10 +180,10 @@ class CongratsPage :
     }
 
     private fun onStudyMore() {
-        launchCatchingTask {
-            val customStudy = CustomStudyDialog.createInstance(deckId = withCol { decks.selected() })
-            customStudy.show(childFragmentManager, null)
-        }
+//        launchCatchingTask {
+//            val customStudy = CustomStudyDialog.createInstance(deckId = withCol { decks.selected() })
+//            customStudy.show(childFragmentManager, null)
+//        }
     }
 
     companion object {

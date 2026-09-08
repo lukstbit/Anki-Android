@@ -33,7 +33,6 @@ import anki.collection.OpChanges
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.backend.stripHTMLScriptAndStyleTags
 import com.ichi2.anki.common.crashreporting.CrashReportService
-import com.ichi2.anki.dialogs.customstudy.CustomStudyDialog
 import com.ichi2.anki.filtered.FilteredDeckOptionsFragment
 import com.ichi2.anki.libanki.DeckId
 import com.ichi2.anki.libanki.Decks
@@ -42,7 +41,6 @@ import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.anki.utils.ext.launchCollectionInLifecycleScope
 import com.ichi2.anki.utils.ext.setFragmentResultListener
-import com.ichi2.anki.utils.ext.showDialogFragment
 import com.ichi2.ui.CollectionMediaImageGetter
 import org.intellij.lang.annotations.Language
 import timber.log.Timber
@@ -177,8 +175,8 @@ class StudyOptionsFragment :
     }
 
     private fun showCustomStudyContextMenu() {
-        val dialog = CustomStudyDialog.createInstance(deckId = viewModel.selectedDeckId)
-        requireActivity().showDialogFragment(dialog)
+//        val dialog = CustomStudyDialog.createInstance(deckId = viewModel.selectedDeckId)
+//        requireActivity().showDialogFragment(dialog)
     }
 
     override fun onMenuItemSelected(item: MenuItem): Boolean {

@@ -27,8 +27,6 @@ import com.ichi2.anki.common.destinations.DeferredNavigation
 import com.ichi2.anki.common.destinations.ReviewDeckDestination
 import com.ichi2.anki.common.destinations.toIntent
 import com.ichi2.anki.databinding.ActivityStudyOptionsBinding
-import com.ichi2.anki.dialogs.customstudy.CustomStudyDialog.CustomStudyAction
-import com.ichi2.anki.dialogs.customstudy.CustomStudyDialog.CustomStudyAction.Companion.REQUEST_KEY
 import com.ichi2.anki.libanki.DeckId
 import com.ichi2.anki.libanki.undoAvailable
 import com.ichi2.anki.libanki.undoLabel
@@ -36,7 +34,6 @@ import com.ichi2.anki.observability.ChangeManager
 import com.ichi2.anki.reviewreminders.ReviewReminderScope
 import com.ichi2.anki.reviewreminders.ScheduleRemindersFragment
 import com.ichi2.anki.startup.ensureStorageIsReady
-import com.ichi2.anki.utils.ext.setFragmentResultListener
 import com.ichi2.ui.RtlCompliantActionProvider
 import dev.androidbroadcast.vbpd.viewBinding
 import kotlinx.coroutines.launch
@@ -73,14 +70,14 @@ class StudyOptionsActivity :
         setResult(RESULT_OK)
         addMenuProvider(menuProvider)
 
-        setFragmentResultListener(REQUEST_KEY) { _, bundle ->
-            when (CustomStudyAction.fromBundle(bundle)) {
-                CustomStudyAction.CUSTOM_STUDY_SESSION,
-                CustomStudyAction.EXTEND_STUDY_LIMITS,
-                ->
-                    (currentFragment as? StudyOptionsFragment)?.refreshInterface()
-            }
-        }
+//        setFragmentResultListener(REQUEST_KEY) { _, bundle ->
+//            when (CustomStudyAction.fromBundle(bundle)) {
+//                CustomStudyAction.CUSTOM_STUDY_SESSION,
+//                CustomStudyAction.EXTEND_STUDY_LIMITS,
+//                ->
+//                    (currentFragment as? StudyOptionsFragment)?.refreshInterface()
+//            }
+//        }
         registerStudyOptionsStudyHandler {
             Timber.i("Opening study screen from study options screen")
             val reviewer = with(DeferredNavigation) { ReviewDeckDestination.CurrentDeck.toIntent() }
